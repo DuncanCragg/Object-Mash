@@ -1,4 +1,8 @@
 
+body {
+    font-family: Helvetica, Arial, sans
+}
+
 tr {
     border: 1px solid #999;
 }
@@ -20,5 +24,27 @@ td tr td {
 a {
     color: #009;
     text-decoration: none;
+}
+
+h2, h3 {
+    margin: 0px;
+}
+
+p {
+    margin: 5px 0px 0px 0px;
+    padding: 0px;
+}
+
+div.vcard, div.vevent, div.object-head {
+    background-color: #ffffcc;
+    border: 1px solid #555555;
+    margin: 8px;
+    padding: 18px;
+}
+
+p.description, div.adr {
+    border-bottom: 1px solid #AA7;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 

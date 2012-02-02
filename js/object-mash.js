@@ -35,7 +35,7 @@ function JSON2HTML() {
             var that = this;
             var rows = [];
             $.each(json, function(key,val){
-                rows.push('<tr><td>'+key+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
+                rows.push('<tr><td>'+that.deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
             });
             return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">view source</a></td></tr>\n'+rows.join('\n')+'\n</table>';
         },
@@ -43,19 +43,18 @@ function JSON2HTML() {
             var that = this;
             var rows = [];
             $.each(l, function(key,val){ rows.push(that.getAnyHTML(val)); });
-            if(rows.length >2) return '<p>'+rows.join(',</p>\n<p>')+'</p>\n';
+            if(rows.length >5) return '<p>'+rows.join(',</p>\n<p>')+'</p>\n';
             return rows.join(', ');
         },
         getStringHTML: function(s){
-            if(s.startsWith('http://')){
-                if(s.endsWith('json')) return '<a href="'+getBaseURL()+s.htmlEscape()+'"> &gt;&gt; </a>';
+            if(s.startethWith('http://')){
+                if(s.endethWith('json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> &gt;&gt; </a>';
                 return '<a href="'+s.htmlEscape()+'"> &gt;&gt; </a>';
             } else return s.htmlEscape();
         },
         getContactHTML: function(url,json){
             var rows=[];
-            rows.push('<div>Contact</div>');
-            rows.push('<a class="object" href="'+url+'">view source</a>\n');
+            rows.push('<div class="object-head">Contact <a class="object" href="'+url+'">view source</a></div>');
             rows.push('<div class="vcard">');
             if(json.fullName !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
             if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
@@ -78,18 +77,17 @@ function JSON2HTML() {
         },
         getContactPhoneHTML: function(phone){
             var rows=[];
-            if(phone.constructor!==Object) rows.push('<p>Tel:    <span class="tel">'+this.getAnyHTML(phone)+'</span></p>');
+            if(phone.constructor!==Object) rows.push('<p class="phone">Tel:    <span class="tel">'+this.getAnyHTML(phone)+'</span></p>');
             else{
-            if(phone.mobile !== undefined) rows.push('<p>Mobile: <span class="tel">'+this.getAnyHTML(phone.mobile)+'</span></p>');
-            if(phone.home   !== undefined) rows.push('<p>Home:   <span class="tel">'+this.getAnyHTML(phone.home)+'</span></p>');
-            if(phone.work   !== undefined) rows.push('<p>Work:   <span class="tel">'+this.getAnyHTML(phone.work)+'</span></p>');
+            if(phone.mobile !== undefined) rows.push('<p class="phone">Mobile: <span class="tel">'+this.getAnyHTML(phone.mobile)+'</span></p>');
+            if(phone.home   !== undefined) rows.push('<p class="phone">Home:   <span class="tel">'+this.getAnyHTML(phone.home)+'</span></p>');
+            if(phone.work   !== undefined) rows.push('<p class="phone">Work:   <span class="tel">'+this.getAnyHTML(phone.work)+'</span></p>');
             }
             return rows.join('\n')+'\n';
         },
         getEventHTML: function(url,json){
             var rows=[];
-            rows.push('<div>Event</div>');
-            rows.push('<a class="object" href="'+url+'">view source</a>\n');
+            rows.push('<div class="object-head">Event <a class="object" href="'+url+'">view source</a></div>');
             rows.push('<div class="vevent">');
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
@@ -137,6 +135,9 @@ function JSON2HTML() {
         },
         makeNiceDate: function(date){
             return date;
+        },
+        deCamelise: function(s){
+            return s;
         }
     };
 };
@@ -166,8 +167,8 @@ function ObjectMasher() {
 
         getURLofObject: function(){
             var url = getLocationParameter('o');
-            if(!url.startsWith('http://')) url = getOrigin()+url;
-            if(!url.endsWith('.json'))     url = url+'.json';
+            if(!url.startethWith('http://')) url = getRootURL()+url;
+            if(!url.endethWith('.json'))     url = url+'.json';
             return url;
         }
     };
@@ -175,23 +176,12 @@ function ObjectMasher() {
 
 // }-------------- Utilities -------------------------------{
 
-if (typeof String.prototype.startsWith != 'function') {
-  String.prototype.startsWith = function(str){
-    return this.slice(0, str.length)==str;
-  };
-}
-
-if (typeof String.prototype.endsWith != 'function') {
-  String.prototype.endsWith = function(str){
-    return this.slice(-str.length)==str;
-  };
-}
-
+String.prototype.startethWith = function(str){ return this.slice(0, str.length)==str; };
+String.prototype.endethWith   = function(str){ return this.slice(  -str.length)==str; };
 String.prototype.jsonEscape = function(){
     return this.replace(/\\/g, '\\\\')
                .replace(/"/g, '\\"');
 };
-
 String.prototype.htmlEscape = function(){
     return this.replace(/&/g,'&amp;')
                .replace(/</g,'&lt;')
@@ -202,15 +192,19 @@ String.prototype.htmlEscape = function(){
 // --------------------
 
 function getLocationParameter(key){
-    var match = RegExp('[?&]' + key + '=([^&]*)').exec(window.location.search);
+    var match = RegExp('[?&]'+key+'=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
-function getOrigin(){
+function getRootURL(){
     return window.location.protocol + '//' + window.location.host + '/';
 }
 
-function getBaseURL(){
+function getDirURL(){
+    return window.location.protocol + '//' + window.location.host + window.location.pathname;
+}
+
+function getMashURL(){
     return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=';
 }
 
