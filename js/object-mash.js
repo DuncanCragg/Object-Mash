@@ -19,38 +19,61 @@ function Network() {
 
 function JSON2HTML() {
     return {
-        getHTML: function(json){
-            if(json.constructor!=Object) return "Not an object!";
-            if(this.isA("contact", json)) return this.getContactHTML(json);
-            return this.getObjectHTML(json);
+        getHTML: function(url,json){
+            if(json.constructor!=Object) return 'Not an object!<br/>'+url+'<br/>'+json;
+            if(this.isA('contact', json)) return this.getContactHTML(url,json);
+            return this.getObjectHTML(url,json);
         },
-        getObjectHTML: function(json){
-            var self = this;
+        getAnyHTML: function(a){
+            if(a.constructor===String) return this.getStringHTML(a);
+            if(a.constructor===Array)  return this.getListHTML(a);
+            if(a.constructor===Object) return this.getHTML(a);
+            return a!=null? ''+a: '-';
+        },
+        getObjectHTML: function(url,json){
+            var that = this;
             var rows = [];
             $.each(json, function(key,val){
-                rows.push('<tr><td>'+key+'</td><td>'+self.getAnyHTML(val)+ '</td></tr>');
+                rows.push('<tr><td>'+key+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
             });
-            return '<table>\n'+rows.join('\n')+'\n</table>';
-        },
-        getAnyHTML: function(val){
-            if(val.constructor===String) return this.getStringHTML(val);
-            if(val.constructor===Array)  return this.getListHTML(val);
-            if(val.constructor===Object) return this.getHTML(val);
-            return val;
-        },
-        getStringHTML: function(s){
-           if(s.startsWith("http://")){
-               return '<a href="'+s.htmlEscape()+'">'+s.htmlEscape()+'</a>';
-           } else return s.htmlEscape();
+            return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">view source</a></td></tr>\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
-            var self = this;
+            var that = this;
             var rows = [];
-            $.each(l, function(key,val){ rows.push(self.getAnyHTML(val)); });
+            $.each(l, function(key,val){ rows.push(that.getAnyHTML(val)); });
+            if(rows.length >2) return '<div>'+rows.join(',</div>\n<div>')+'</div>\n';
             return rows.join(', ');
         },
-        getContactHTML: function(json){
-           return "<div>contact</div>"+this.getObjectHTML(json);
+        getStringHTML: function(s){
+           if(s.startsWith('http://')){
+               if(s.endsWith('json')) return '<a href="'+getBaseURL()+s.htmlEscape()+'"> &gt;&gt; </a>';
+               return '<a href="'+s.htmlEscape()+'"> &gt;&gt; </a>';
+           } else return s.htmlEscape();
+        },
+        getContactHTML: function(url,json){
+           var rows=[];
+           rows.push('<div>Contact</div>');
+           rows.push('<a class="object" href="'+url+'">view source</a>\n');
+           rows.push('<div class="vcard">');
+           if(json.fullName !== undefined) rows.push('<h1 class="fn">'+json.fullName+'</h1>');
+           if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
+           if(json.phone    !== undefined) rows.push('<p>Tel: <span class="tel">'+this.getListHTML(json.phone.work)+'</span></p>');
+           if(json.email    !== undefined) rows.push('<p>Email: <span class="email">'+json.email+'</span></p>');
+           if(json.webURL   !== undefined) rows.push('<p>Website: <a class="url" href="'+json.webURL+'">'+json.webURL+'</a></p>');
+           rows.push('</div>');
+           return rows.join('\n')+'\n';
+        },
+        getContactAddressHTML: function(address){
+           var rows=[];
+           rows.push('<div class="adr">');
+           if(address.street     !== undefined) rows.push('<p class="street-address">'+this.getListHTML(address.street)+'</p>');
+           if(address.locality   !== undefined) rows.push('<p class="locality">'+address.locality+'</p>');
+           if(address.region     !== undefined) rows.push('<p class="region">'+address.region+'</p>');
+           if(address.postalCode !== undefined) rows.push('<p class="postal-code">'+address.postalCode+'</p>');
+           if(address.country    !== undefined) rows.push('<p class="country-name">'+address.country+'</p>');
+           rows.push('</div>');
+           return rows.join('\n')+'\n';
         },
         isA: function(type, json){
            if(json.is===type) return true;
@@ -75,7 +98,7 @@ function ObjectMasher() {
             network.getJSON(url, this.objectIn, this.objectFail);
         },
         objectIn: function(obj, s){
-            $('#content').html('<div><a href="'+url+'">'+url+'</a></div>'+json2html.getHTML(obj));
+            $('#content').html(json2html.getHTML(url, obj));
         }, 
         objectFail: function(x,s,e){
             $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
@@ -127,6 +150,10 @@ function getLocationParameter(key){
 
 function getOrigin(){
     return window.location.protocol + '//' + window.location.host + '/';
+}
+
+function getBaseURL(){
+    return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=';
 }
 
 // }--------------------------------------------------------{

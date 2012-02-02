@@ -1,2 +1,24 @@
 
+tr {
+    border: 1px solid #999;
+}
+
+td:first-child {
+    background-color: #ffffbb;
+}
+
+td {
+    background-color: #ffffdd;
+    vertical-align: top;
+    padding: 7px;
+}
+
+td tr td {
+    background-color: #f7f7d6;
+}
+
+a {
+    color: #009;
+    text-decoration: none;
+}
 
