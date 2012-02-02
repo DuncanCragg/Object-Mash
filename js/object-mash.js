@@ -126,9 +126,10 @@ function JSON2HTML() {
             return rows.join('\n')+'\n';
         },
         isA: function(type, json){
-            if(json.is===type) return true;
-            if(json.is !== undefined && json.is.constructor!==Array) return false;
-            return (json.is !== undefined && json.is.contains(type));
+            if(!json.is) return false;
+            if(json.is.constructor===String && json.is == type) return true;
+            if(json.is.constructor!==Array) return false;
+            return type in json.is;
         },
         makeISODate: function(date){
             return date;
