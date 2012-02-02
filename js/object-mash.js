@@ -20,7 +20,7 @@ function Network() {
 function JSON2HTML() {
     return {
         getHTML: function(url,json){
-            if(json.constructor!=Object) return 'Not an object!<br/>'+url+'<br/>'+json;
+            if(!json || json.constructor!==Object) return 'Not an object!<br/>'+url+'<br/>'+json;
             if(this.isA('contact', json)) return this.getContactHTML(url,json);
             if(this.isA('event',   json)) return this.getEventHTML(url,json);
             return this.getObjectHTML(url,json);
@@ -28,7 +28,7 @@ function JSON2HTML() {
         getAnyHTML: function(a){
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML(a);
+            if(a.constructor===Object) return this.getHTML("//",a);
             return a!=null? ''+a: '-';
         },
         getObjectHTML: function(url,json){
