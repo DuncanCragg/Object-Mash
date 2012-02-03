@@ -17,9 +17,6 @@ function Network() {
 
 // }-------------- JSON->HTML ------------------------------{
 
-var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
-var monthsLookupTable = [ 'January','February','March','April','May', 'June','July','August','September','October','November','December'];
-
 function JSON2HTML() {
     return {
         getHTML: function(url,json){
@@ -38,7 +35,7 @@ function JSON2HTML() {
             var that = this;
             var rows = [];
             $.each(json, function(key,val){
-                rows.push('<tr><td>'+that.deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
+                rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
             });
             return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">view source</a></td></tr>\n'+rows.join('\n')+'\n</table>';
         },
@@ -95,8 +92,8 @@ function JSON2HTML() {
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
             rows.push('<div>');
-            if(json.start    !== undefined) rows.push('<div class="dtstart" title="'+this.makeISODate(json.start)+'">'+this.makeNiceDate(json.start)+'</div>');
-            if(json.end      !== undefined) rows.push('<div class="dtend"   title="'+this.makeISODate(json.end  )+'">'+this.makeNiceDate(json.end  )+'</div>');
+            if(json.start    !== undefined) rows.push('<div class="dtstart" title="'+makeISODate(json.start)+'">'+makeNiceDate(json.start)+'</div>');
+            if(json.end      !== undefined) rows.push('<div class="dtend"   title="'+makeISODate(json.end  )+'">'+makeNiceDate(json.end  )+'</div>');
             rows.push('</div>');
             if(json.location !== undefined) rows.push(this.getEventLocationHTML(json.location));
             if(json.attendees!== undefined) rows.push(this.getEventAttendeesHTML(json.attendees));
@@ -133,21 +130,6 @@ function JSON2HTML() {
             if(json.is.constructor===String && json.is == type) return true;
             if(json.is.constructor!==Array) return false;
             return type in json.is;
-        },
-        makeISODate: function(date){
-            var d = new Date(date);
-            if(d.toString()=='Invalid Date') return '[not a valid date]';
-            return d.toISOString();
-        },
-        makeNiceDate: function(date){
-            var d = new Date(date)
-            if(d.toString()=='Invalid Date') return '[not a valid date]';
-            var day = daysLookupTable[d.getDay()];
-            var mon = monthsLookupTable[d.getMonth()];
-            return day + ', ' + d.getDate() + ' ' + mon + ' ' + d.getFullYear() + ' at '+d.toLocaleTimeString();
-        },
-        deCamelise: function(s){
-            return s.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
         }
     };
 };
@@ -216,6 +198,27 @@ function getDirURL(){
 
 function getMashURL(){
     return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=';
+}
+
+var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
+var monthsLookupTable = [ 'January','February','March','April','May', 'June','July','August','September','October','November','December'];
+
+function makeISODate(date){
+    var d = new Date(date);
+    if(d.toString()=='Invalid Date') return '[not a valid date]';
+    return d.toISOString();
+}
+
+function makeNiceDate(date){
+    var d = new Date(date)
+    if(d.toString()=='Invalid Date') return '[not a valid date]';
+    var day = daysLookupTable[d.getDay()];
+    var mon = monthsLookupTable[d.getMonth()];
+    return day + ', ' + d.getDate() + ' ' + mon + ' ' + d.getFullYear() + ' at '+d.toLocaleTimeString();
+}
+
+function deCamelise(s){
+    return s.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
 }
 
 // }--------------------------------------------------------{
