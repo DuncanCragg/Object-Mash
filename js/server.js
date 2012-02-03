@@ -20,6 +20,7 @@ http.createServer(function(req, res) {
     if(req.method !== 'GET'){
         res.writeHead(400);
         res.end();
+        console.log('400 '+req.method);
         return;
     }
     var filename = path.join(process.cwd(), url.parse(req.url).pathname);
@@ -41,13 +42,14 @@ http.createServer(function(req, res) {
         var fileStream = fs.createReadStream(filename);
         fileStream.setEncoding('utf-8');
         fileStream.on('error', function(){
-            response.writeHead(500);
-            response.end();
+            res.writeHead(500);
+            res.end();
             console.log('500 '+filename);
         });
         fileStream.pipe(res);
         console.log('200 '+filename);
     });
+
 }).listen(8080);
 
 String.prototype.startethWith = function(str){ return this.slice(0, str.length)==str; };
