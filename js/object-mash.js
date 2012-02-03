@@ -17,6 +17,9 @@ function Network() {
 
 // }-------------- JSON->HTML ------------------------------{
 
+var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
+var monthsLookupTable = [ 'January','February','March','April','May', 'June','July','August','September','October','November','December'];
+
 function JSON2HTML() {
     return {
         getHTML: function(url,json){
@@ -132,10 +135,16 @@ function JSON2HTML() {
             return type in json.is;
         },
         makeISODate: function(date){
-            return date;
+            var d = new Date(date);
+            if(d.toString()=='Invalid Date') return '[not a valid date]';
+            return d.toISOString();
         },
         makeNiceDate: function(date){
-            return date;
+            var d = new Date(date)
+            if(d.toString()=='Invalid Date') return '[not a valid date]';
+            var day = daysLookupTable[d.getDay()];
+            var mon = monthsLookupTable[d.getMonth()];
+            return day + ', ' + d.getDate() + ' ' + mon + ' ' + d.getFullYear() + ' at '+d.toLocaleTimeString();
         },
         deCamelise: function(s){
             return s.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); });
