@@ -118,10 +118,8 @@ function JSON2HTML() {
             var rows=[];
             rows.push('<h3>Attendees:</h3>');
             rows.push('<ul>');
-/*
-    <li class="attendee vcard fn"><a href="/staff/uid-55d3.html">Bob</a></li>
-    <li class="attendee vcard fn"><a href="uid-06-7d5d.html">Joe</a></li>
-*/
+            var that = this;
+            $.each(attendees, function(key,val){ rows.push('<li class="attendee vcard fn">'+that.getAnyHTML(val)+'</li>'); });
             rows.push('</ul>');
             return rows.join('\n')+'\n';
         },
