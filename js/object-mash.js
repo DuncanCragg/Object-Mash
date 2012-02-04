@@ -92,8 +92,8 @@ function JSON2HTML() {
             rows.push('<div class="vevent">');
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
-            if(json.start    !== undefined) rows.push('<div class="info-item">From ' +this.getDateSpan("dtstart", json.start)+'</div>');
-            if(json.end      !== undefined) rows.push('<div class="info-item">Until '+this.getDateSpan("dtend",   json.end)  +'</div>');
+            if(json.start    !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
+            if(json.end      !== undefined) rows.push('<div class="info-item">Until: '+this.getDateSpan("dtend",   json.end)  +'</div>');
             if(json.location !== undefined) rows.push(this.getEventLocationHTML(json.location));
             if(json.attendees!== undefined) rows.push(this.getEventAttendeesHTML(json.attendees));
             rows.push('</div>');
@@ -125,7 +125,11 @@ function JSON2HTML() {
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
         getObjectHeadHTML: function(title, url, place){
-            return '<div class="object-head">'+title+' '+this.getStringHTML(url)+' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a></div>';
+            return '<div class="object-head open">'+title+
+                                                    this.getStringHTML(url)+
+                                                  ' <a href="#" class="open-close">^</a>'+
+                                                  ' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>'+
+                   '</div>';
         },
         isA: function(type, json){
             if(!json.is) return false;
@@ -152,6 +156,7 @@ function ObjectMasher() {
         },
         topObjectIn: function(obj, s){
             $('#content').html(json2html.getHTML(url, obj));
+            me.setUpHTMLEvents();
             fetch = {};
             $('a.object-place').each(function(n,a){ fetch[a.getAttribute('href')]=this; } );
             $.each(fetch, function(url,a){
@@ -166,10 +171,20 @@ function ObjectMasher() {
             $('a.object-place').each(function(n,ae){ var a=$(ae)
                 if(a.attr('href')!=url) return;
                 a.parent().replaceWith(json2html.getHTML(url, obj));
+                me.setUpHTMLEvents();
             });
         },
         objectFail: function(url,x,s,e){
-            console.log(s);
+            console.log(url+" "+s);
+        },
+        setUpHTMLEvents: function(){
+            $('.open-close').unbind().click(function(e){
+                var objhead = $(this).parent();
+                var panel=objhead.next();
+                if(panel.css('display')=='none'){ panel.show(); objhead.addClass('open'); }
+                else                            { panel.hide(); objhead.removeClass('open'); }
+                e.preventDefault();
+            });
         },
 
         // ------------------------------------------------

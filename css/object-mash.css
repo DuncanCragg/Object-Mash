@@ -32,7 +32,7 @@ a {
 }
 
 h2, h3 {
-    margin: 4px 0px;
+    margin: 8px 0px 3px 0px;
 }
 
 ul {
@@ -52,13 +52,18 @@ p {
 }
 
 div.object-head {
+    border-radius: 5px 5px 0px 0px;
     background-color: #fafafa;
     border-top: 1px solid #aaa;
     border-left: 1px solid #aaa;
     border-right: 1px solid #888;
-    border-bottom: none;
+    border-bottom: 1px solid #888;
     margin: 8px 0px 0px 0px;
     padding: 4px 12px;
+}
+
+div.object-head.open{
+    border-bottom: none;
 }
 
 div.object-head a {
