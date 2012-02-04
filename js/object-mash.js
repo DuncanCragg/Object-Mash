@@ -34,9 +34,7 @@ function JSON2HTML() {
         getObjectHTML: function(url,json){
             var that = this;
             var rows = [];
-            $.each(json, function(key,val){
-                rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>');
-            });
+            $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
             return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">view source</a></td></tr>\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
@@ -100,17 +98,11 @@ function JSON2HTML() {
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
-        getEventLocationHTML: function(url){
+        getEventLocationHTML: function(locurl){
             var rows=[];
             rows.push('<h3>Location:</h3>');
-            rows.push('<a class="object" href="'+url+'">view source</a>\n');
+            rows.push('<a href="'+locurl+'" class="object-place">view source</a>\n');
             rows.push('<div class="location vcard">');
-/*
-    <a class="opener fn" href="http://bletchleypark.org/address.html">Bletchley Park</a>
-    <div class="openable">
-      ..
-    </div>
-*/
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -140,17 +132,34 @@ function ObjectMasher() {
     var json2html = new JSON2HTML();
     var url = null;
 
-    return {
+    var me = {
 
         init: function(){
             url = this.getURLofObject();
-            network.getJSON(url, this.objectIn, this.objectFail);
+            network.getJSON(url, this.topObjectIn, this.topObjectFail);
         },
-        objectIn: function(obj, s){
+        topObjectIn: function(obj, s){
             $('#content').html(json2html.getHTML(url, obj));
-        }, 
-        objectFail: function(x,s,e){
+            fetch = {};
+            $('a.object-place').each(function(n,a){ fetch[a.getAttribute('href')]=this; } );
+            $.each(fetch, function(url,a){
+                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
+                $(a).next().html('Loading..');
+            });
+        },
+        topObjectFail: function(x,s,e){
             $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
+        },
+        objectIn: function(url,obj,s){
+            $('a.object-place').each(function(n,ae){ var a=$(ae)
+                if(a.attr('href')!=url) return;
+                a.next().html(json2html.getHTML(url, obj));
+                a.removeClass('object-place');
+                a.addClass('object');
+            });
+        },
+        objectFail: function(url,x,s,e){
+            console.log(s);
         },
 
         // ------------------------------------------------
@@ -162,6 +171,7 @@ function ObjectMasher() {
             return url;
         }
     };
+    return me;
 };
 
 // }-------------- Utilities -------------------------------{

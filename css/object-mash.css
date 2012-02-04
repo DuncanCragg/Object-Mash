@@ -35,7 +35,21 @@ p {
     padding: 0px;
 }
 
-div.vcard, div.vevent, div.object-head {
+div.object-head {
+    background-color: #ffffdd;
+    border: 1px solid #555555;
+    margin: 8px;
+    padding: 18px;
+}
+
+div.vcard {
+    background-color: #eeeeff;
+    border: 1px solid #555555;
+    margin: 8px;
+    padding: 18px;
+}
+
+div.vevent{
     background-color: #ffffcc;
     border: 1px solid #555555;
     margin: 8px;
@@ -48,3 +62,8 @@ p.description, div.adr {
     margin-bottom: 5px;
 }
 
+li {
+    list-style-type: none;
+    border: 1px solid #aaa;
+    padding: 5px 5px 5px 15px;
+}
