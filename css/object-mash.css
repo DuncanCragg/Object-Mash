@@ -3,6 +3,11 @@ body {
     font-family: Helvetica, Arial, sans
 }
 
+div {
+    margin: 0px;
+    padding: 0px;
+}
+
 tr {
     border: 1px solid #999;
 }
@@ -27,43 +32,69 @@ a {
 }
 
 h2, h3 {
-    margin: 0px;
+    margin: 4px 0px;
 }
 
-p {
-    margin: 5px 0px 0px 0px;
+ul {
+    margin: 0px 0px 8px 0px;
     padding: 0px;
-}
-
-div.object-head {
-    background-color: #ffffdd;
-    border: 1px solid #555555;
-    margin: 8px;
-    padding: 18px;
-}
-
-div.vcard {
-    background-color: #eeeeff;
-    border: 1px solid #555555;
-    margin: 8px;
-    padding: 18px;
-}
-
-div.vevent{
-    background-color: #ffffcc;
-    border: 1px solid #555555;
-    margin: 8px;
-    padding: 18px;
-}
-
-p.description, div.adr {
-    border-bottom: 1px solid #AA7;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
 }
 
 li {
     list-style-type: none;
-    border: 1px solid #aaa;
-    padding: 5px 5px 5px 15px;
+    padding: 0px;
+    margin: 0px;
+}
+
+p {
+    margin: 0px 0px 0px 0px;
+    padding: 0px;
+}
+
+div.object-head {
+    background-color: #fafafa;
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: none;
+    margin: 8px 0px 0px 0px;
+    padding: 4px 12px;
+}
+
+div.object-head a {
+    float: right;
+    margin-left: 8px;
+}
+
+div.vcard, div.vevent {
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+    margin: 0px 0px 10px 0px;
+    padding: 0px 12px;
+}
+
+div.vcard {
+    background-color: #eeeeff;
+}
+
+div.vevent{
+    background-color: #ffffcc;
+}
+
+div.info-item {
+    margin: 8px 0px;
+}
+
+div span.dtstart, div span.dtend {
+    margin-left: 10px;
+}
+
+p.description, div.adr {
+    border-top: 1px solid #AA7;
+    border-bottom: 1px solid #AA7;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 0px;
 }

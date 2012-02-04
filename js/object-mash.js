@@ -35,7 +35,7 @@ function JSON2HTML() {
             var that = this;
             var rows = [];
             $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
-            return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">view source</a></td></tr>\n'+rows.join('\n')+'\n</table>';
+            return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">{..}</a></td></tr>\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
             var that = this;
@@ -46,19 +46,21 @@ function JSON2HTML() {
         },
         getStringHTML: function(s){
             if(s.startethWith('http://')){
-                if(s.endethWith('json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> &gt;&gt; </a>';
-                return '<a href="'+s.htmlEscape()+'"> &gt;&gt; </a>';
+                if(s.endethWith('json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
+                return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
             } else return s.htmlEscape();
         },
+        // ------------------------------------------------
         getContactHTML: function(url,json){
             var rows=[];
-            rows.push('<div class="object-head">Contact <a class="object" href="'+url+'">view source</a></div>');
+            rows.push(this.getObjectHeadHTML('Contact', url, false));
             rows.push('<div class="vcard">');
             if(json.fullName !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
             if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
             if(json.phone    !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
-            if(json.email    !== undefined) rows.push('<p>Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></p>');
-            if(json.webURL   !== undefined) rows.push('<p>Website: <a class="url" href="'+json.webURL+'">'+json.webURL+'</a></p>');
+            if(json.email    !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
+            if(json.webURL   !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webURL)+'</div>');
+            if(json.published!== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.published)+'</div>');
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -75,24 +77,23 @@ function JSON2HTML() {
         },
         getContactPhoneHTML: function(phone){
             var rows=[];
-            if(phone.constructor!==Object) rows.push('<p class="phone">Tel:    <span class="tel">'+this.getAnyHTML(phone)+'</span></p>');
+            if(phone.constructor!==Object) rows.push('<div class="info-item phone">Tel:    <span class="tel">'+this.getAnyHTML(phone)+'</span></div>');
             else{
-            if(phone.mobile !== undefined) rows.push('<p class="phone">Mobile: <span class="tel">'+this.getAnyHTML(phone.mobile)+'</span></p>');
-            if(phone.home   !== undefined) rows.push('<p class="phone">Home:   <span class="tel">'+this.getAnyHTML(phone.home)+'</span></p>');
-            if(phone.work   !== undefined) rows.push('<p class="phone">Work:   <span class="tel">'+this.getAnyHTML(phone.work)+'</span></p>');
+            if(phone.mobile !== undefined) rows.push('<div class="info-item phone">Mobile: <span class="tel">'+this.getAnyHTML(phone.mobile)+'</span></div>');
+            if(phone.home   !== undefined) rows.push('<div class="info-item phone">Home:   <span class="tel">'+this.getAnyHTML(phone.home)+'</span></div>');
+            if(phone.work   !== undefined) rows.push('<div class="info-item phone">Work:   <span class="tel">'+this.getAnyHTML(phone.work)+'</span></div>');
             }
             return rows.join('\n')+'\n';
         },
+        // ------------------------------------------------
         getEventHTML: function(url,json){
             var rows=[];
-            rows.push('<div class="object-head">Event <a class="object" href="'+url+'">view source</a></div>');
+            rows.push(this.getObjectHeadHTML('Event', url, false));
             rows.push('<div class="vevent">');
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
-            rows.push('<div>');
-            if(json.start    !== undefined) rows.push('<div class="dtstart" title="'+makeISODate(json.start)+'">'+makeNiceDate(json.start)+'</div>');
-            if(json.end      !== undefined) rows.push('<div class="dtend"   title="'+makeISODate(json.end  )+'">'+makeNiceDate(json.end  )+'</div>');
-            rows.push('</div>');
+            if(json.start    !== undefined) rows.push('<div class="info-item">From ' +this.getDateSpan("dtstart", json.start)+'</div>');
+            if(json.end      !== undefined) rows.push('<div class="info-item">Until '+this.getDateSpan("dtend",   json.end)  +'</div>');
             if(json.location !== undefined) rows.push(this.getEventLocationHTML(json.location));
             if(json.attendees!== undefined) rows.push(this.getEventAttendeesHTML(json.attendees));
             rows.push('</div>');
@@ -101,8 +102,8 @@ function JSON2HTML() {
         getEventLocationHTML: function(locurl){
             var rows=[];
             rows.push('<h3>Location:</h3>');
-            rows.push('<a href="'+locurl+'" class="object-place">view source</a>\n');
-            rows.push('<div class="location vcard">');
+            rows.push('<div class="location">');
+            rows.push(this.getObjectHeadHTML('Contact', locurl, true));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -111,9 +112,20 @@ function JSON2HTML() {
             rows.push('<h3>Attendees:</h3>');
             rows.push('<ul>');
             var that = this;
-            $.each(attendees, function(key,val){ rows.push('<li class="attendee vcard fn">'+that.getAnyHTML(val)+'</li>'); });
+            $.each(attendees, function(key,atturl){
+            rows.push('<li class="attendee">');
+            rows.push(that.getObjectHeadHTML('Contact', atturl, true));
+            rows.push('</li>');
+            });
             rows.push('</ul>');
             return rows.join('\n')+'\n';
+        },
+        // ------------------------------------------------
+        getDateSpan: function(clss, date){
+            return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
+        },
+        getObjectHeadHTML: function(title, url, place){
+            return '<div class="object-head">'+title+' '+this.getStringHTML(url)+' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a></div>';
         },
         isA: function(type, json){
             if(!json.is) return false;
@@ -153,9 +165,7 @@ function ObjectMasher() {
         objectIn: function(url,obj,s){
             $('a.object-place').each(function(n,ae){ var a=$(ae)
                 if(a.attr('href')!=url) return;
-                a.next().html(json2html.getHTML(url, obj));
-                a.removeClass('object-place');
-                a.addClass('object');
+                a.parent().replaceWith(json2html.getHTML(url, obj));
             });
         },
         objectFail: function(url,x,s,e){
