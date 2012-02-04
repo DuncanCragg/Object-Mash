@@ -72,7 +72,7 @@ div.vcard, div.vevent {
     border-right: 1px solid #888;
     border-bottom: 1px solid #888;
     margin: 0px 0px 10px 0px;
-    padding: 0px 12px;
+    padding: 0px 12px 7px 12px;
 }
 
 div.vcard {
@@ -84,7 +84,7 @@ div.vevent{
 }
 
 div.info-item {
-    margin: 8px 0px;
+    margin: 2px 0px 0px 0px;
 }
 
 div span.dtstart, div span.dtend {
@@ -96,5 +96,5 @@ p.description, div.adr {
     border-bottom: 1px solid #AA7;
     padding-top: 5px;
     padding-bottom: 5px;
-    margin-bottom: 0px;
+    margin-bottom: 10px;
 }
