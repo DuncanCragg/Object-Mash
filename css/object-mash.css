@@ -51,6 +51,14 @@ p {
     padding: 0px;
 }
 
+p.list{
+    margin: 10px 0px 0px 0px;
+}
+
+div.list div.list p.list{
+    margin: 10px 0px 0px 10px;
+}
+
 div.object-head {
     border-radius: 5px 5px 0px 0px;
     background-color: #fafafa;

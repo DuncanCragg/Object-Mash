@@ -18,6 +18,13 @@ function Network() {
 // }-------------- JSON->HTML ------------------------------{
 
 function JSON2HTML() {
+
+    var linkre=/\[([^\[]+?)\]\[([^ ]+?)\]/g;
+    var boldre=/!\[(.+?)\]!/g;
+    var italre=/\/\[(.+?)\]\//g;
+    var prefre=/^\|\[(.+)\]\|$/g;
+    var codere=/\|\[(.+?)\]\|/g;
+
     return {
         getHTML: function(url,json){
             if(!json || json.constructor!==Object) return 'Not an object!<br/>'+url+'<br/>'+json;
@@ -41,14 +48,18 @@ function JSON2HTML() {
             var that = this;
             var rows = [];
             $.each(l, function(key,val){ rows.push(that.getAnyHTML(val)); });
-            if(rows.length >5) return '<p>'+rows.join(',</p>\n<p>')+'</p>\n';
+            if(rows.length >5) return '<div class="list"><p class="list">'+rows.join('</p>\n<p class="list">')+'</p></div>\n';
             return rows.join(', ');
         },
         getStringHTML: function(s){
-            if(s.startethWith('http://')){
-                if(s.endethWith('json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
-                return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
-            } else return s.htmlEscape();
+            if(!s.startethWith('http://')) return this.ONMLString2HTML(s);
+            if(s.endethWith('.json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
+            if(s.endethWith('.png' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.gif' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.jpg' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.jpeg')) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.ico' )) return '<img src="'+s.htmlEscape()+'" />';
+            return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
         },
         // ------------------------------------------------
         getContactHTML: function(url,json){
@@ -61,6 +72,8 @@ function JSON2HTML() {
             if(json.email    !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
             if(json.webURL   !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webURL)+'</div>');
             if(json.published!== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.published)+'</div>');
+            if(json.bio      !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
+            if(json.photo    !== undefined) rows.push('<div class="info-item">'+this.getAnyHTML(json.photo)+'</div>');
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -121,6 +134,21 @@ function JSON2HTML() {
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
+        ONMLString2HTML: function(text){
+            if(!text) return '';
+            text=text.replace(/&#39;/g,'\'');
+            text=text.replace(/&quot;/g,'"');
+            text=text.htmlEscape();
+            text=text.replace(linkre, '<a href="$2">$1</a>');
+            text=text.replace(boldre, '<b>$1</b>');
+            text=text.replace(italre, '<i>$1</i>');
+            if(text.startethWith('|[') && text.endethWith(']|')){
+                 text='<pre>'+text.substring(2, text.length-2)+'</pre>';
+            }
+            text=text.replace(codere, '<code>$1</code>');
+            return text;
+        },
+        // ---------------------------------------------------
         getDateSpan: function(clss, date){
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
