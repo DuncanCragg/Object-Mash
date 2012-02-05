@@ -26,10 +26,10 @@ function JSON2HTML() {
     var codere=/\|\[(.+?)\]\|/g;
 
     return {
-        getHTML: function(url,json){
+        getHTML: function(url,json,closed){
             if(!json || json.constructor!==Object) return 'Not an object!<br/>'+url+'<br/>'+json;
-            if(this.isA('contact', json)) return this.getContactHTML(url,json);
-            if(this.isA('event',   json)) return this.getEventHTML(url,json);
+            if(this.isA('contact', json)) return this.getContactHTML(url,json,closed);
+            if(this.isA('event',   json)) return this.getEventHTML(url,json,closed);
             return this.getObjectHTML(url,json);
         },
         getAnyHTML: function(a){
@@ -62,10 +62,10 @@ function JSON2HTML() {
             return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
         },
         // ------------------------------------------------
-        getContactHTML: function(url,json){
+        getContactHTML: function(url,json,closed){
             var rows=[];
-            rows.push(this.getObjectHeadHTML('Contact: '+this.getTitle(json), url, false));
-            rows.push('<div class="vcard">');
+            rows.push(this.getObjectHeadHTML('Contact: '+this.getTitle(json), url, false, closed));
+            rows.push('<div class="vcard"'+(closed? ' style="display: none"':'')+' >');
             if(json.fullName !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
             if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
             if(json.phone    !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
@@ -99,10 +99,10 @@ function JSON2HTML() {
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
-        getEventHTML: function(url,json){
+        getEventHTML: function(url,json,closed){
             var rows=[];
-            rows.push(this.getObjectHeadHTML('Event: '+this.getTitle(json), url, false));
-            rows.push('<div class="vevent">');
+            rows.push(this.getObjectHeadHTML('Event: '+this.getTitle(json), url, false, closed));
+            rows.push('<div class="vevent"'+(closed? ' style="display: none"':'')+' >');
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
             if(json.start    !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
@@ -157,8 +157,8 @@ function JSON2HTML() {
         getDateSpan: function(clss, date){
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
-        getObjectHeadHTML: function(title, url, place){
-            return '<div class="object-head open">'+title+
+        getObjectHeadHTML: function(title, url, place, closed){
+            return '<div class="object-head'+(closed? '':' open')+'">'+title+
                                                     this.getStringHTML(url)+
                                                   ' <a href="#" class="open-close">+/-</a>'+
                                                   ' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>'+
@@ -201,7 +201,7 @@ function ObjectMasher() {
             $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
         },
         objectIn: function(url,obj,s){
-            var html = json2html.getHTML(url, obj);
+            var html = json2html.getHTML(url, obj, true);
             $('a.object-place').each(function(n,ae){ var a=$(ae);
                 if(a.attr('href')!=url) return;
                 a.parent().replaceWith(html);
