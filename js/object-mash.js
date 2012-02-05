@@ -35,14 +35,14 @@ function JSON2HTML() {
         getAnyHTML: function(a){
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML("//",a);
+            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%etc"],a);
             return a!=null? ''+a: '-';
         },
         getObjectHTML: function(url,json){
             var that = this;
             var rows = [];
             $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
-            return '<table>\n<tr><td colspan="2"><a class="object" href="'+url+'">{..}</a></td></tr>\n'+rows.join('\n')+'\n</table>';
+            return this.getObjectHeadHTML(this.getTitle(json),url,false,true)+'<table style="display: none">\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
             var that = this;
@@ -52,6 +52,7 @@ function JSON2HTML() {
             return rows.join(', ');
         },
         getStringHTML: function(s){
+            if(!s) return '';
             if(!s.startethWith('http://')) return this.ONMLString2HTML(s);
             if(s.endethWith('.json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
             if(s.endethWith('.png' )) return '<img src="'+s.htmlEscape()+'" />';
@@ -161,7 +162,7 @@ function JSON2HTML() {
             return '<div class="object-head'+(closed? '':' open')+'">'+title+
                                                     this.getStringHTML(url)+
                                                   ' <a href="#" class="open-close">+/-</a>'+
-                                                  ' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>'+
+                                             (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                    '</div>';
         },
         isA: function(type, json){
