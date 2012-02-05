@@ -188,6 +188,7 @@ function ObjectMasher() {
             network.getJSON(url, this.topObjectIn, this.topObjectFail);
         },
         topObjectIn: function(obj, s){
+            document.title = json2html.getTitle(obj);
             $('#content').html(json2html.getHTML(url, obj));
             me.setUpHTMLEvents();
             fetch = {};
