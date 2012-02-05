@@ -64,7 +64,7 @@ function JSON2HTML() {
         // ------------------------------------------------
         getContactHTML: function(url,json){
             var rows=[];
-            rows.push(this.getObjectHeadHTML('Contact', url, false));
+            rows.push(this.getObjectHeadHTML('Contact: '+this.getTitle(json), url, false));
             rows.push('<div class="vcard">');
             if(json.fullName !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
             if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
@@ -101,7 +101,7 @@ function JSON2HTML() {
         // ------------------------------------------------
         getEventHTML: function(url,json){
             var rows=[];
-            rows.push(this.getObjectHeadHTML('Event', url, false));
+            rows.push(this.getObjectHeadHTML('Event: '+this.getTitle(json), url, false));
             rows.push('<div class="vevent">');
             if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
@@ -116,7 +116,7 @@ function JSON2HTML() {
             var rows=[];
             rows.push('<h3>Location:</h3>');
             rows.push('<div class="location">');
-            rows.push(this.getObjectHeadHTML('Contact', locurl, true));
+            rows.push(this.getObjectHeadHTML('Contact Loading..', locurl, true));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -127,7 +127,7 @@ function JSON2HTML() {
             var that = this;
             $.each(attendees, function(key,atturl){
             rows.push('<li class="attendee">');
-            rows.push(that.getObjectHeadHTML('Contact', atturl, true));
+            rows.push(that.getObjectHeadHTML('Contact Loading..', atturl, true));
             rows.push('</li>');
             });
             rows.push('</ul>');
@@ -149,13 +149,18 @@ function JSON2HTML() {
             return text;
         },
         // ---------------------------------------------------
+        getTitle: function(json){
+            if(json.fullName !== undefined) return this.getAnyHTML(json.fullName);
+            if(json.title    !== undefined) return this.getAnyHTML(json.title);
+            return "";
+        },
         getDateSpan: function(clss, date){
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
         getObjectHeadHTML: function(title, url, place){
             return '<div class="object-head open">'+title+
                                                     this.getStringHTML(url)+
-                                                  ' <a href="#" class="open-close">^</a>'+
+                                                  ' <a href="#" class="open-close">+/-</a>'+
                                                   ' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>'+
                    '</div>';
         },
