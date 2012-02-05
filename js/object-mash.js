@@ -168,11 +168,12 @@ function ObjectMasher() {
             $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
         },
         objectIn: function(url,obj,s){
-            $('a.object-place').each(function(n,ae){ var a=$(ae)
+            var html = json2html.getHTML(url, obj);
+            $('a.object-place').each(function(n,ae){ var a=$(ae);
                 if(a.attr('href')!=url) return;
-                a.parent().replaceWith(json2html.getHTML(url, obj));
-                me.setUpHTMLEvents();
+                a.parent().replaceWith(html);
             });
+            me.setUpHTMLEvents();
         },
         objectFail: function(url,x,s,e){
             console.log(url+" "+s);
@@ -181,14 +182,12 @@ function ObjectMasher() {
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
                 var panel=objhead.next();
-                if(panel.css('display')=='none'){ panel.show(); objhead.addClass('open'); }
-                else                            { panel.hide(); objhead.removeClass('open'); }
+                if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); }
+                else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
             });
         },
-
         // ------------------------------------------------
-
         getURLofObject: function(){
             var url = getLocationParameter('o');
             if(!url.startethWith('http://')) url = getRootURL()+url;
