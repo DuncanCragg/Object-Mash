@@ -30,19 +30,20 @@ function JSON2HTML() {
             if(!json || json.constructor!==Object) return 'Not an object!<br/>'+url+'<br/>'+json;
             if(this.isA('contact', json)) return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json)) return this.getEventHTML(url,json,closed);
-            return this.getObjectHTML(url,json);
+            return this.getObjectHTML(url,json,closed);
         },
         getAnyHTML: function(a){
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%etc"],a);
+            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%etc"],a,true);
             return a!=null? ''+a: '-';
         },
-        getObjectHTML: function(url,json){
+        getObjectHTML: function(url,json,closed){
             var that = this;
             var rows = [];
             $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
-            return this.getObjectHeadHTML(this.getTitle(json),url,false,true)+'<table style="display: none">\n'+rows.join('\n')+'\n</table>';
+            return this.getObjectHeadHTML(this.getTitle(json),url,false,closed)+
+                   '<table class="json"'+(closed? ' style="display: none"':'')+'>\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
             var that = this;
@@ -159,7 +160,7 @@ function JSON2HTML() {
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
         getObjectHeadHTML: function(title, url, place, closed){
-            return '<div class="object-head'+(closed? '':' open')+'">'+title+
+            return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'</span>'+
                                                     this.getStringHTML(url)+
                                                   ' <a href="#" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+

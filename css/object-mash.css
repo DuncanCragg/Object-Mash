@@ -15,12 +15,24 @@ table {
     border-bottom: 1px solid #888;
 }
 
+table.json{
+    width: 100%;
+}
+
+span.object-title{
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 tr {
     border: 1px solid red;
 }
 
 td:first-child {
     background-color: #fafafa;
+    width: 15%;
 }
 
 td {
