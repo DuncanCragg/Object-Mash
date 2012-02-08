@@ -27,7 +27,7 @@ function JSON2HTML() {
 
     return {
         getHTML: function(url,json,closed){
-            if(!json || json.constructor!==Object) return 'Not an object!<br/>'+url+'<br/>'+json;
+            if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
             if(this.isA('contact', json)) return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json)) return this.getEventHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
@@ -160,7 +160,7 @@ function JSON2HTML() {
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
         getObjectHeadHTML: function(title, url, place, closed){
-            return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'</span>'+
+            return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'&nbsp;</span>'+
                                                     this.getStringHTML(url)+
                                                   ' <a href="#" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
@@ -204,6 +204,7 @@ function ObjectMasher() {
             $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
         },
         objectIn: function(url,obj,s){
+            if(!obj){ this.objectFail(url,null,"object empty; status="+s,null); return; }
             var html = json2html.getHTML(url, obj, true);
             $('a.object-place').each(function(n,ae){ var a=$(ae);
                 if(a.attr('href')!=url) return;
@@ -212,7 +213,7 @@ function ObjectMasher() {
             me.setUpHTMLEvents();
         },
         objectFail: function(url,x,s,e){
-            console.log(url+" "+s);
+            console.log(s+" "+url);
         },
         setUpHTMLEvents: function(){
             $('.open-close').unbind().click(function(e){
