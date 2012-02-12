@@ -108,12 +108,13 @@ function JSON2HTML() {
             var rows=[];
             rows.push(this.getObjectHeadHTML('Event: '+this.getTitle(json), url, false, closed));
             rows.push('<div class="vevent"'+(closed? ' style="display: none"':'')+' >');
-            if(json.title    !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
-            if(json.content  !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
-            if(json.start    !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
-            if(json.end      !== undefined) rows.push('<div class="info-item">Until: '+this.getDateSpan("dtend",   json.end)  +'</div>');
-            if(json.location !== undefined) rows.push(this.getEventLocationHTML(json.location));
-            if(json.attendees!== undefined) rows.push(this.getObjectList('Attendees:', 'attendee', json.attendees));
+            if(json.title     !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
+            if(json.content   !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
+            if(json.start     !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
+            if(json.end       !== undefined) rows.push('<div class="info-item">Until: '+this.getDateSpan("dtend",   json.end)  +'</div>');
+            if(json.location  !== undefined) rows.push(this.getEventLocationHTML(json.location));
+            if(json.attendees !== undefined) rows.push(this.getObjectList('Attendees:', 'attendee', json.attendees));
+            if(json["%more"]  !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
