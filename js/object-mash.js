@@ -35,7 +35,7 @@ function JSON2HTML() {
         getAnyHTML: function(a){
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%etc"],a,true);
+            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%more"],a,true);
             return a!=null? ''+a: '-';
         },
         getObjectHTML: function(url,json,closed){
@@ -77,6 +77,7 @@ function JSON2HTML() {
             if(json.bio      !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
             if(json.photo    !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
             if(json.parents  !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
+            if(json["%more"] !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
