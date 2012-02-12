@@ -68,16 +68,17 @@ function JSON2HTML() {
             var rows=[];
             rows.push(this.getObjectHeadHTML('Contact: '+this.getTitle(json), url, false, closed));
             rows.push('<div class="vcard"'+(closed? ' style="display: none"':'')+' >');
-            if(json.fullName !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
-            if(json.address  !== undefined) rows.push(this.getContactAddressHTML(json.address));
-            if(json.phone    !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
-            if(json.email    !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
-            if(json.webURL   !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webURL)+'</div>');
-            if(json.published!== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.published)+'</div>');
-            if(json.bio      !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
-            if(json.photo    !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
-            if(json.parents  !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
-            if(json["%more"] !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
+            if(json.fullName     !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
+            if(json.address      !== undefined) rows.push(this.getContactAddressHTML(json.address));
+            if(json.phone        !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
+            if(json.email        !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
+            if(json.webURL       !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webURL)+'</div>');
+            if(json.published    !== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.published)+'</div>');
+            if(json.bio          !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
+            if(json.photo        !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
+            if(json.parents      !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
+            if(json.inspirations !== undefined) rows.push(this.getObjectList('Inspired by', 'inspirations', json.inspirations));
+            if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
