@@ -78,6 +78,7 @@ function JSON2HTML() {
             if(json.photo        !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
             if(json.parents      !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
             if(json.inspirations !== undefined) rows.push(this.getObjectList('Inspired by', 'inspirations', json.inspirations));
+            if(json.following    !== undefined) rows.push(this.getObjectList('Following', 'following', json.following));
             if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
