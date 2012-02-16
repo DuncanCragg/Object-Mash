@@ -1,17 +1,21 @@
 { "is": [ "media", "list" ],
   "list": [
-    { "is": "media", "url": "http://localhost:8080/local/logo.png",                 "text": "The Object Network" },
+    { "is": "media", "url": "http://localhost:8080/local/logo.png",                 "text": "![The Object Network]!" },
     { "is": "media", "url": "http://localhost:8080/local/bill.png",                 "text": "Creating an API?" },
     { "is": "media", "url": "http://localhost:8080/local/bill.png",                 "text": "Don't create another rare monster!" },
     { "is": "media", "url": "http://localhost:8080/local/moshlings.png",            "text": "There are 5000 of those already!" },
     { "is": "media", "url": "http://localhost:8080/local/prof.png",                 "text": "Exposing information about a person?" },
-    { "is": "media", "url": "http://localhost:8080/local/prof-waldo.png",           "text": "Make your JSON look like my JSON!!!" },
+    { "is": "media", "url": "http://localhost:8080/local/prof-waldo.png",           "text": "Make your JSON look like my JSON!" },
     { "is": "media", "url": "http://localhost:8080/local/linked.png",               "text": "So we can link to each other" },
     { "is": "media", "url": "http://localhost:8080/local/linked-client.png",        "text": "Because the client code that understands my JSON ..." },
     { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "... will also understand yours!" },
-    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "By publishing similar stuff as me to my client, you may be able to stop there and save having to write any client code" },
-    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "By linking to my stuff, you may be able to save yourself importing and republishing or re-creating it" },
-    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "And may be able to save yourself writing so much server code" },
-    { "is": "media", "url": "http://localhost:8080/local/bill-waldo.png",           "text": "You can save yourself so much working out of the details of your interface" }
+    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "By publishing similar stuff as me to my client, you may be able to save yourself writing client code" },
+    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "By linking to my stuff, you may be able to save yourself importing and re-publishing or re-creating it" },
+    { "is": "media", "url": "http://localhost:8080/local/linked-client-client.png", "text": "By publishing similar stuff as me you may be able to save yourself writing so much server code" },
+    { "is": "media", "url": "http://localhost:8080/local/bill-waldo.png",           "text": "By publishing similar stuff as me you may be able to save yourself working out some of the interface details" },
+    { "is": "media", "url": "http://localhost:8080/local/siteone.png",              "text": "What it looks like: site one" },
+    { "is": "media", "url": "http://localhost:8080/local/sitetwo.png",              "text": "What it looks like: site two - /[much the same!]/" },
+    { "is": "media", "url": "http://localhost:8080/local/logo.png",                 "text": "[Demo][http://localhost:8080/?o=local/123-456]" },
+    { "is": "media", "url": "http://localhost:8080/local/link.png",                 "text": "[Link][http://the-object.net]" }
   ]
 }

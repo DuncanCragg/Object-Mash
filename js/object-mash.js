@@ -144,7 +144,7 @@ function JSON2HTML() {
         getMediaHTML: function(json){
             return ' <div class="media">\n'+
                    '  <img class="media-img" src="'+json.url+'" />\n'+
-                   '  <div class="media-text"><p>\n'+json.text+'</p>\n</div>\n'+
+                   '  <div class="media-text"><p>\n'+this.ONMLString2HTML(json.text)+'</p>\n</div>\n'+
                    ' </div>\n';
         },
         // ------------------------------------------------
