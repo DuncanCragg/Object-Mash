@@ -1,0 +1,41 @@
+{   "is": "contact",
+    "fullName": "Mr Duncan Cragg",
+    "name": {
+      "given":  "Duncan",
+      "middle": "Beaumont",
+      "family": "Cragg"
+    },
+    "address": {
+      "locality": "Kingston-upon-Thames",
+      "postalCode": "KT1",
+      "country": "UK"
+    },
+    "email": [ "demo@cilux.org" ],
+    "organisation": {
+      "name": "ThoughtWorks (UK) Ltd",
+      "webURL": "http://www.thoughtworks.com"
+    },
+    "birthday": "1964-01-01",
+    "webURL": [
+      "http://duncan-cragg.org/blog/",
+      "http://twitter.com/duncancragg"
+    ],
+    "published": [
+      "http://duncan-cragg.org/blog/atom.json",
+      "http://duncan-cragg.org/blog/"
+    ],
+    "bio": "Creator of the [Object Network][http://the-object.net] and Object-Mash",
+    "attending": [
+       "http://localhost:8080/local/123-456.json"
+    ],
+    "employer": [
+       "http://localhost:8080/local/456-789.json"
+    ],
+    "inspirations": [
+        "http://localhost:8888/dbpedia/Tim_Berners-Lee.json",
+        "http://localhost:8888/dbpedia/Alan_Turing.json"
+    ],
+    "%more": "http://localhost:8888/twitter/duncancragg.json"
+}
+
+

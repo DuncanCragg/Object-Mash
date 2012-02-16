@@ -1,0 +1,17 @@
+{ "is": "contact",
+  "fullName": "Bletchley Park",
+  "address": {
+    "street": [ "The Mansion", "Bletchley Park", "Sherwood Drive" ],
+    "locality": "Bletchley",
+    "region": "Milton Keynes",
+    "postalCode": "MK3 6EB",
+    "country": "UK"
+  },
+  "phone": { "work": [ "01908 640404", "01908 272684" ] },
+  "email": "info@bletchleypark.org.uk",
+  "webURL": "http://www.bletchleypark.org/",
+  "employees": [
+     "http://localhost:8080/local/789-123.json"
+  ],
+  "%more": "http://localhost:8888/dbpedia/Bletchley_Park.json"
+}
