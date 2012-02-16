@@ -139,3 +139,26 @@ p.description, div.adr {
     padding-bottom: 5px;
     margin-bottom: 10px;
 }
+
+.media {
+    display: none;
+}
+
+.media:first-child {
+    display: block;
+}
+
+.media-text {
+    background-image: url(grey.png);
+    background-repeat: repeat;
+    color: #ffffff;
+    padding: 10px;
+    position:absolute;
+    top: 457px;
+    width: 801px;
+}
+
+.media-img {
+    width: 821px;
+}
+

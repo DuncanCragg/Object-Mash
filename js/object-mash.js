@@ -135,15 +135,15 @@ function JSON2HTML() {
             if(list.constructor===String) list = [ list ];
             if(list.constructor!==Array) return this.getAnyHTML(list);
             var rows=[];
-            rows.push('<div id="media-list"><div id="media-list-inner">');
+            rows.push('<div class="media-list">');
             var that = this;
             $.each(list, function(key,item){ rows.push(that.getMediaHTML(item)); });
-            rows.push('</div></div>');
+            rows.push('</div>');
             return rows.join('\n')+'\n';
         },
         getMediaHTML: function(json){
             return ' <div class="media">\n'+
-                   '  <img src="'+json.url+'" title="'+json.text+'" />\n'+
+                   '  <img class="media-img" src="'+json.url+'" />\n'+
                    '  <div class="media-text"><p>\n'+json.text+'</p>\n</div>\n'+
                    ' </div>\n';
         },
@@ -257,6 +257,19 @@ function ObjectMasher() {
                 if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); }
                 else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
+            });
+            $('.media-img').unbind().click(function(e){
+                var mediaList = $(this).parent().parent();
+                var numSlides = mediaList.children().length;
+                if(typeof mediaIndex==='undefined') mediaIndex=1;
+                mediaList.find(':nth-child('+mediaIndex+')').hide();
+                if(e.clientX-this.offsetLeft<this.width/2) mediaIndex--;
+                else mediaIndex++;
+                if(mediaIndex==0) mediaIndex=1;
+                if(mediaIndex==numSlides+1) mediaIndex=numSlides;
+                mediaList.find(':nth-child('+mediaIndex+')').show();
+                mediaList.find(':nth-child('+mediaIndex+')').children().show();
+                mediaList.find(':nth-child('+mediaIndex+')').children().children().show();
             });
         },
         // ------------------------------------------------
