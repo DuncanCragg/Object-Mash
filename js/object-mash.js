@@ -34,6 +34,7 @@ function JSON2HTML() {
             return this.getObjectHTML(url,json,closed);
         },
         getAnyHTML: function(a){
+            if(!a) return "";
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
             if(a.constructor===Object) return this.getHTML(a["%url"]||a["%more"],a,true);
