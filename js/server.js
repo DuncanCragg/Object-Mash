@@ -7,13 +7,28 @@ var http = require('http'),
 
 var mimeTypes={
     '.html': 'text/html',
-    '.jpeg': 'image/jpeg',
-    '.jpg':  'image/jpeg',
-    '.ico':  'image/x-icon',
-    '.png':  'image/png',
     '.js':   'application/javascript',
     '.json': 'application/json',
-    '.css':  'text/css'
+    '.css':  'text/css',
+
+    '.jpeg': 'image/jpeg',
+    '.jpg':  'image/jpeg',
+    '.gif':  'image/gif',
+    '.ico':  'image/x-icon',
+    '.png':  'image/png'
+};
+
+var charType={
+    '.html': true,
+    '.js':   true,
+    '.json': true,
+    '.css':  true,
+
+    '.jpeg': false,
+    '.jpg':  false,
+    '.gif':  false,
+    '.ico':  false,
+    '.png':  false
 };
 
 http.createServer(function(req, res) {
@@ -35,12 +50,13 @@ http.createServer(function(req, res) {
             console.log('404 '+filename);
             return;
         }
-        var mimeType = mimeTypes[path.extname(filename)];
+        var ext = path.extname(filename);
+        var mimeType = mimeTypes[ext];
         if(!mimeType) mimeType='text/plain';
         res.writeHead(200, { 'Content-Type': mimeType });
 
         var fileStream = fs.createReadStream(filename);
-        fileStream.setEncoding('utf-8');
+        if(charType[ext]) fileStream.setEncoding('utf-8');
         fileStream.on('error', function(){
             res.writeHead(500);
             res.end();
