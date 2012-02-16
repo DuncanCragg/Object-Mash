@@ -21,6 +21,7 @@
       "http://twitter.com/duncancragg"
     ],
     "published": [
+      "http://localhost:8080/local/111-111.json",
       "http://duncan-cragg.org/blog/atom.json",
       "http://duncan-cragg.org/blog/"
     ],
