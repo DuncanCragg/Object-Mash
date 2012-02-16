@@ -30,6 +30,7 @@ function JSON2HTML() {
             if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
             if(this.isA('contact', json)) return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json)) return this.getEventHTML(url,json,closed);
+            if(this.isA('media',   json) && this.isA('list', json)) return this.getMediaListHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
         },
         getAnyHTML: function(a){
@@ -128,6 +129,25 @@ function JSON2HTML() {
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
+        getMediaListHTML: function(url,json,closed){
+            var list = json.list;
+            if(!list) return "";
+            if(list.constructor===String) list = [ list ];
+            if(list.constructor!==Array) return this.getAnyHTML(list);
+            var rows=[];
+            rows.push('<div id="media-list"><div id="media-list-inner">');
+            var that = this;
+            $.each(list, function(key,item){ rows.push(that.getMediaHTML(item)); });
+            rows.push('</div></div>');
+            return rows.join('\n')+'\n';
+        },
+        getMediaHTML: function(json){
+            return ' <div class="media">\n'+
+                   '  <img src="'+json.url+'" title="'+json.text+'" />\n'+
+                   '  <div class="media-text"><p>\n'+json.text+'</p>\n</div>\n'+
+                   ' </div>\n';
+        },
+        // ------------------------------------------------
         ONMLString2HTML: function(text){
             if(!text) return '';
             text=text.replace(/&#39;/g,'\'');
@@ -179,9 +199,10 @@ function JSON2HTML() {
             if(!json.is) return false;
             if(json.is.constructor===String && json.is == type) return true;
             if(json.is.constructor!==Array) return false;
-            return type in json.is;
+            return $.inArray(type, json.is) >= 0;
         },
         isObjectURL: function(s){
+            if(s.constructor!==String) return false;
             if(!s.startethWith("http:")) return false;
             if(!s.endethWith(".json")) return false;
             return true;
