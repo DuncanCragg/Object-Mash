@@ -154,11 +154,12 @@ p.description, div.adr {
     color: #ffffff;
     padding: 10px;
     position:absolute;
-    top: 457px;
-    width: 801px;
+    top: 13px;
+    width: 94%;
 }
 
 .media-img {
-    width: 821px;
+    height: 94%;
+    margin-top: 10px;
 }
 
