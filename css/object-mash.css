@@ -79,6 +79,10 @@ p {
     padding: 0px;
 }
 
+img {
+    max-width: 500px;
+}
+
 p.list{
     margin: 10px 0px 0px 0px;
 }

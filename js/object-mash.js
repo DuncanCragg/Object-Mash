@@ -58,11 +58,11 @@ function JSON2HTML() {
             if(!s) return '';
             if(!s.startethWith('http://')) return this.ONMLString2HTML(s);
             if(s.endethWith('.json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
-            if(s.endethWith('.png' )) return '<img width="200" src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.gif' )) return '<img width="200" src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.jpg' )) return '<img width="200" src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.jpeg')) return '<img width="200" src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.ico' )) return '<img width="200" src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.png' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.gif' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.jpg' )) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.jpeg')) return '<img src="'+s.htmlEscape()+'" />';
+            if(s.endethWith('.ico' )) return '<img src="'+s.htmlEscape()+'" />';
             return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
         },
         // ------------------------------------------------
@@ -88,11 +88,12 @@ function JSON2HTML() {
         getContactAddressHTML: function(address){
             var rows=[];
             rows.push('<div class="adr">');
+            if(address.constructor===String)     rows.push('<p class="address">'       +this.getStringHTML(address)+'</p>'); else{
             if(address.street     !== undefined) rows.push('<p class="street-address">'+this.getAnyHTML(address.street)+'</p>');
             if(address.locality   !== undefined) rows.push('<p class="locality">'      +this.getAnyHTML(address.locality)+'</p>');
             if(address.region     !== undefined) rows.push('<p class="region">'        +this.getAnyHTML(address.region)+'</p>');
             if(address.postalCode !== undefined) rows.push('<p class="postal-code">'   +this.getAnyHTML(address.postalCode)+'</p>');
-            if(address.country    !== undefined) rows.push('<p class="country-name">'  +this.getAnyHTML(address.country)+'</p>');
+            if(address.country    !== undefined) rows.push('<p class="country-name">'  +this.getAnyHTML(address.country)+'</p>'); }
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -173,8 +174,7 @@ function JSON2HTML() {
             if(list.constructor!==Array) return this.getAnyHTML(list);
             $.each(list, function(key,item){
                 rows.push('<li class="'+itemclass+'">');
-                if(that.isObjectURL(item)) rows.push(that.getObjectHeadHTML('Loading..', item, true));
-                else                       rows.push(that.getAnyHTML(item));
+                rows.push(that.getObjectHeadHTML('Loading..', item, true));
                 rows.push('</li>');
             });
             rows.push('</ul>');
@@ -190,8 +190,9 @@ function JSON2HTML() {
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
         getObjectHeadHTML: function(title, url, place, closed){
+            if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'&nbsp;</span>'+
-                                                    this.getStringHTML(url)+
+                                                    this.getAnyHTML(url)+
                                                   ' <a href="#" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                    '</div>';
@@ -203,7 +204,8 @@ function JSON2HTML() {
             return $.inArray(type, json.is) >= 0;
         },
         isObjectURL: function(s){
-            if(s.constructor!==String) return false;
+            if(!s) return false;
+            if( s.constructor!==String) return false;
             if(!s.startethWith("http:")) return false;
             if(!s.endethWith(".json")) return false;
             return true;
