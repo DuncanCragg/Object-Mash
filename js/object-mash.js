@@ -30,9 +30,9 @@ function JSON2HTML(url) {
     return {
         getHTML: function(url,json,closed){
             if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
-            if(this.isA('contact', json)) return this.getContactHTML(url,json,closed);
-            if(this.isA('event',   json)) return this.getEventHTML(url,json,closed);
-            if(this.isA('media',   json) && this.isA('list', json)) return this.getMediaListHTML(url,json,closed);
+            if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
+            if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
+            if(this.isA('media',   json, true)) return this.getMediaListHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
         },
         getAnyHTML: function(a){
@@ -194,11 +194,13 @@ function JSON2HTML(url) {
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                    '</div>';
         },
-        isA: function(type, json){
+        isA: function(type, json, list){
             if(!json.is) return false;
-            if(json.is.constructor===String && json.is == type) return true;
+            if(json.is.constructor===String && json.is==type) return !list;
             if(json.is.constructor!==Array) return false;
-            return $.inArray(type, json.is) >= 0 && $.inArray('list', json.is) == -1;
+            var islist=$.inArray('list', json.is) >= 0;
+            if(list!=islist) return false;
+            return $.inArray(type, json.is) >= 0;
         },
         isLink: function(s){
             return s && s.startethWith('http://');
