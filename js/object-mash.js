@@ -17,7 +17,9 @@ function Network() {
 
 // }-------------- JSON->HTML ------------------------------{
 
-function JSON2HTML() {
+function JSON2HTML(url) {
+
+    var currentObjectBasePath = url;
 
     var linkre=/\[([^\[]+?)\]\[([^ ]+?)\]/g;
     var boldre=/!\[(.+?)\]!/g;
@@ -55,15 +57,10 @@ function JSON2HTML() {
             return rows.join(', ');
         },
         getStringHTML: function(s){
-            if(!s) return '';
-            if(!s.startethWith('http://')) return this.ONMLString2HTML(s);
-            if(s.endethWith('.json')) return '<a href="'+getMashURL()+s.htmlEscape()+'"> [ + ] </a>';
-            if(s.endethWith('.png' )) return '<img src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.gif' )) return '<img src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.jpg' )) return '<img src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.jpeg')) return '<img src="'+s.htmlEscape()+'" />';
-            if(s.endethWith('.ico' )) return '<img src="'+s.htmlEscape()+'" />';
-            return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
+            if(this.isONLink(s))    return '<a href="'+getMashURL()+this.fullURL(s).htmlEscape()+'"> [ + ] </a>';
+            if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
+            if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
+            return this.ONMLString2HTML(s);
         },
         // ------------------------------------------------
         getContactHTML: function(url,json,closed){
@@ -201,7 +198,24 @@ function JSON2HTML() {
             if(!json.is) return false;
             if(json.is.constructor===String && json.is == type) return true;
             if(json.is.constructor!==Array) return false;
-            return $.inArray(type, json.is) >= 0;
+            return $.inArray(type, json.is) >= 0 && $.inArray('list', json.is) == -1;
+        },
+        isLink: function(s){
+            return s && s.startethWith('http://');
+        },
+        isONLink: function(s){
+            return (this.isLink(s) && s.endethWith('.json'))||s.startethWith('uid-');
+        },
+        isImageLink: function(s){
+            return this.isLink(s) && (s.endethWith('.png' )||
+                                      s.endethWith('.gif' )||
+                                      s.endethWith('.jpg' )||
+                                      s.endethWith('.jpeg')||
+                                      s.endethWith('.ico' ));
+        },
+        fullURL: function(s){
+            if(this.isLink(s)) return s;
+            return currentObjectBasePath+s;
         },
         isObjectURL: function(s){
             if(!s) return false;
@@ -218,13 +232,14 @@ function JSON2HTML() {
 function ObjectMasher() {
 
     var network = new Network();
-    var json2html = new JSON2HTML();
+    var json2html;
     var url = null;
 
     var me = {
 
         init: function(){
             url = this.getURLofObject();
+            json2html = new JSON2HTML(url.substring(0,url.lastIndexOf('/')+1));
             network.getJSON(url, this.topObjectIn, this.topObjectFail);
         },
         topObjectIn: function(obj, s){
