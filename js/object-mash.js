@@ -199,7 +199,7 @@ function JSON2HTML(url) {
             if(json.is.constructor===String && json.is==type) return !list;
             if(json.is.constructor!==Array) return false;
             var islist=$.inArray('list', json.is) >= 0;
-            if(list!=islist) return false;
+            if(!!list!=islist) return false;
             return $.inArray(type, json.is) >= 0;
         },
         isLink: function(s){
