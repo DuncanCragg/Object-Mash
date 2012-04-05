@@ -13,10 +13,10 @@
     "email": [ "demo@cilux.org" ],
     "organisation": {
       "name": "ThoughtWorks (UK) Ltd",
-      "webURL": "http://www.thoughtworks.com"
+      "webView": "http://www.thoughtworks.com"
     },
     "birthday": "1964-01-01",
-    "webURL": [
+    "webView": [
       "http://duncan-cragg.org/blog/",
       "http://twitter.com/duncancragg"
     ],

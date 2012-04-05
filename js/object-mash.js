@@ -32,6 +32,7 @@ function JSON2HTML(url) {
             if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
             if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
+            if(this.isA('document',json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('media',   json, true)) return this.getMediaListHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
         },
@@ -71,8 +72,8 @@ function JSON2HTML(url) {
             if(json.address      !== undefined) rows.push(this.getContactAddressHTML(json.address));
             if(json.phone        !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
             if(json.email        !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
-            if(json.webURL       !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webURL)+'</div>');
-            if(json.published    !== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.published)+'</div>');
+            if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            if(json.publications !== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.publications)+'</div>');
             if(json.bio          !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
             if(json.photo        !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
             if(json.parents      !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
@@ -85,12 +86,14 @@ function JSON2HTML(url) {
         getContactAddressHTML: function(address){
             var rows=[];
             rows.push('<div class="adr">');
-            if(address.constructor===String)     rows.push('<p class="address">'       +this.getStringHTML(address)+'</p>'); else{
-            if(address.street     !== undefined) rows.push('<p class="street-address">'+this.getAnyHTML(address.street)+'</p>');
-            if(address.locality   !== undefined) rows.push('<p class="locality">'      +this.getAnyHTML(address.locality)+'</p>');
-            if(address.region     !== undefined) rows.push('<p class="region">'        +this.getAnyHTML(address.region)+'</p>');
-            if(address.postalCode !== undefined) rows.push('<p class="postal-code">'   +this.getAnyHTML(address.postalCode)+'</p>');
-            if(address.country    !== undefined) rows.push('<p class="country-name">'  +this.getAnyHTML(address.country)+'</p>'); }
+            if(address.constructor===String)     rows.push('<p class="address">'         +this.getStringHTML(address)+'</p>'); else{
+            if(address.postbox    !== undefined) rows.push('<p class="post-office-box">' +this.getAnyHTML(address.postbox)+'</p>');
+            if(address.extended   !== undefined) rows.push('<p class="extended-address">'+this.getAnyHTML(address.extended)+'</p>');
+            if(address.street     !== undefined) rows.push('<p class="street-address">'  +this.getAnyHTML(address.street)+'</p>');
+            if(address.locality   !== undefined) rows.push('<p class="locality">'        +this.getAnyHTML(address.locality)+'</p>');
+            if(address.region     !== undefined) rows.push('<p class="region">'          +this.getAnyHTML(address.region)+'</p>');
+            if(address.postalCode !== undefined) rows.push('<p class="postal-code">'     +this.getAnyHTML(address.postalCode)+'</p>');
+            if(address.country    !== undefined) rows.push('<p class="country-name">'    +this.getAnyHTML(address.country)+'</p>'); }
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -126,6 +129,25 @@ function JSON2HTML(url) {
             rows.push(this.getObjectHeadHTML('Contact Loading..', locurl, true));
             rows.push('</div>');
             return rows.join('\n')+'\n';
+        },
+        // ------------------------------------------------
+        getDocumentListHTML: function(url,json,closed){
+            var list = json.list;
+            if(!list) return "";
+            if(list.constructor!==Array) return this.getAnyHTML(list);
+            var rows=[];
+            rows.push('<div class="document-list">');
+            var that = this;
+            $.each(list, function(key,item){ rows.push(that.getDocumentHTML(item)); });
+            rows.push('</div>');
+            return rows.join('\n')+'\n';
+        },
+        getDocumentHTML: function(item){
+            if(item.constructor==String){
+                if(!isLink(item)) return "";
+                return ' <div class="document">\n'+
+                       '  <a href="'+item+'">'+item+'</a>\n'+
+                       ' </div>\n';
         },
         // ------------------------------------------------
         getMediaListHTML: function(url,json,closed){
