@@ -148,6 +148,7 @@ function JSON2HTML(url) {
                 return ' <div class="document">\n'+
                        '  <a href="'+item+'">'+item+'</a>\n'+
                        ' </div>\n';
+            }
         },
         // ------------------------------------------------
         getMediaListHTML: function(url,json,closed){
