@@ -59,7 +59,7 @@ function JSON2HTML(url) {
             return rows.join(', ');
         },
         getStringHTML: function(s){
-            if(this.isONLink(s))    return '<a href="'+getMashURL()+this.fullURL(s).htmlEscape()+'"> [ + ] </a>';
+            if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL()+this.fullURL(s).htmlEscape()+'"> [ + ] </a>';
             if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
             if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
             return this.ONMLString2HTML(s);
@@ -272,22 +272,21 @@ function JSON2HTML(url) {
 
 // }-------------- Viewer Application ----------------------{
 
-function ObjectMasher() {
+function ObjectMasher(){
 
     var network = new Network();
     var json2html;
-    var url = null;
+    var previousObjectURL = null;
+    var currentObjectURL = null;
 
     var me = {
 
         init: function(){
-            url = this.getURLofObject();
-            json2html = new JSON2HTML(url.substring(0,url.lastIndexOf('/')+1));
-            network.getJSON(url, this.topObjectIn, this.topObjectFail);
+            me.setNewObjectTo(window.location);
         },
         topObjectIn: function(obj, s){
             document.title = json2html.getTitle(obj);
-            $('#content').html(json2html.getHTML(url, obj));
+            $('#content').html(json2html.getHTML(currentObjectURL, obj));
             me.setUpHTMLEvents();
             fetch = {};
             $('a.object-place').each(function(n,a){ fetch[a.getAttribute('href')]=this; } );
@@ -297,7 +296,7 @@ function ObjectMasher() {
             });
         },
         topObjectFail: function(x,s,e){
-            $('#content').html('<div><a href="'+url+'">'+url+'</a></div><div>'+s+'</div>');
+            $('#content').html('<div>topObjectFail: <a href="'+url+'">'+url+'</a></div><div>'+s+'; '+e+'</div>');
         },
         objectIn: function(url,obj,s){
             if(!obj){ this.objectFail(url,null,"object empty; status="+s,null); return; }
@@ -332,10 +331,28 @@ function ObjectMasher() {
                 mediaList.find(':nth-child('+mediaIndex+')').children().show();
                 mediaList.find(':nth-child('+mediaIndex+')').children().children().show();
             });
+            if(typeof history.pushState!=="function") return;
+            $('.new-state').unbind().click(function(e){
+                var href = $(this).attr("href");
+                me.setNewObjectTo(href);
+                history.pushState(null,null,href);
+                e.preventDefault();
+                return false;
+            });
+            $(window).bind("popstate", function() {
+                me.setNewObjectTo(window.location);
+            });
         },
         // ------------------------------------------------
-        getURLofObject: function(){
-            var url = getLocationParameter('o');
+        setNewObjectTo: function(url){
+            previousObjectURL = currentObjectURL;
+            currentObjectURL = me.completeObjectURL(url);
+            if(previousObjectURL==currentObjectURL) return;
+            json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
+            network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail);
+        },
+        completeObjectURL: function(url){
+            url=getURLParameter(url, 'o');
             if(!url.startethWith('http://')) url = getRootURL()+url;
             if(!url.endethWith('.json'))     url = url+'.json';
             return url;
@@ -361,8 +378,8 @@ String.prototype.htmlEscape = function(){
 
 // --------------------
 
-function getLocationParameter(key){
-    var match = RegExp('[?&]'+key+'=([^&]*)').exec(window.location.search);
+function getURLParameter(url, key){
+    var match = RegExp('[?&]'+key+'=([^&]*)').exec(url);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
