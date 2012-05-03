@@ -231,7 +231,7 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'&nbsp;</span>'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="#" class="open-close">+/-</a>'+
+                                                  ' <a href="'+url+'#" class="open-close">+-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                    '</div>';
         },
@@ -317,6 +317,7 @@ function ObjectMasher(){
                 if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); }
                 else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
+                return false;
             });
             $('.media-img').unbind().click(function(e){
                 var mediaList = $(this).parent().parent();
