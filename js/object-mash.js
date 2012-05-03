@@ -32,6 +32,7 @@ function JSON2HTML(url) {
             if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
             if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
+            if(this.isA('article', json))       return this.getArticleHTML(url,json,closed);
             if(this.isA('document',json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('media',   json, true)) return this.getMediaListHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
@@ -127,6 +128,23 @@ function JSON2HTML(url) {
             rows.push('<h3>Location:</h3>');
             rows.push('<div class="location">');
             rows.push(this.getObjectHeadHTML('Contact Loading..', locurl, true));
+            rows.push('</div>');
+            return rows.join('\n')+'\n';
+        },
+        // ------------------------------------------------
+        getArticleHTML: function(url,json,closed){
+            var rows=[];
+            rows.push(this.getObjectHeadHTML('Article: '+this.getTitle(json), url, false, closed));
+            rows.push('<div class="document"'+(closed? ' style="display: none"':'')+' >');
+            if(json.title     !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
+            if(json.publisher !== undefined) rows.push('<div class="info-item">Publisher: '+this.getAnyHTML(json.publisher)+'</div>');
+            if(json.journaltitle !== undefined) rows.push('<div class="info-item">Journal: '+this.getAnyHTML(json.journaltitle)+'</div>');
+            if(json.volume    !== undefined) rows.push('<div class="info-item">Volume: '+this.getAnyHTML(json.volume)+'</div>');
+            if(json.issue     !== undefined) rows.push('<div class="info-item">Issue: '+this.getAnyHTML(json.issue)+'</div>');
+            if(json.published !== undefined) rows.push('<div class="info-item">Published: '+this.getDateSpan("published", json.published)+'</div>');
+            if(json.webView   !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            if(json.authors   !== undefined) rows.push(this.getObjectList('Authors:', 'author', json.authors));
+            if(json["%more"]  !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
