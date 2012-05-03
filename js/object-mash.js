@@ -229,10 +229,11 @@ function JSON2HTML(url) {
         },
         getObjectHeadHTML: function(title, url, place, closed){
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
-            return '<div class="object-head'+(closed? '':' open')+'">'+'<span class="object-title">'+title+'&nbsp;</span>'+
+            return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="'+url+'#" class="open-close">+-</a>'+
+                                                  ' <a href="'+url+'#" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
+                                                   '<span class="object-title">'+title+'&nbsp;</span>'+
                    '</div>';
         },
         isA: function(type, json, list){
