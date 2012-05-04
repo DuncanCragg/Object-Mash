@@ -81,6 +81,22 @@ img {
     max-width: 100%;
 }
 
+input.query{
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+    padding-left: 0.8em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    background-color: #ffffff;
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 90%;
+    max-width: 25em;
+    font-size: 1.3em;
+}
+
 p.list{
     margin: 10px 0px 0px 0px;
 }

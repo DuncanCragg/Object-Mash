@@ -11,6 +11,18 @@ function Network() {
                 success: ok,
                 error: err
             });
+        },
+        postJSON: function(url,json,ok,err){
+            $.ajax({
+                type: 'POST',
+                url: url,
+                headers: {},
+                data: "o="+escape(json),
+             // contentType: 'application/json', // crappy CORS
+                dataType: 'json',
+                success: ok,
+                error: err
+            });
         }
     };
 };
@@ -161,6 +173,9 @@ function JSON2HTML(url) {
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
             }
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
+            rows.push('<form id="query-form">');
+            rows.push('<label for="query">Query these documents:</label><input id="query" class="query" type="text" />');
+            rows.push('</form>');
             if(json.list         !== undefined) rows.push(this.getObjectList(null, 'document', json.list));
             rows.push('</div>');
             return rows.join('\n')+'\n';
@@ -329,6 +344,13 @@ function ObjectMasher(){
                 mediaList.find(':nth-child('+mediaIndex+')').show();
                 mediaList.find(':nth-child('+mediaIndex+')').children().show();
                 mediaList.find(':nth-child('+mediaIndex+')').children().children().show();
+            });
+            $('#query').focus();
+            $('#query-form').unbind().submit(function(e){
+                var q=$('#query').val();
+                var json = "{ \"is\": [ \"document\", \"query\" ], \"content\": \"<hasWords("+q.jsonEscape()+")>\" }";
+                network.postJSON(currentObjectURL, json, me.topObjectIn, me.topObjectFail);
+                e.preventDefault();
             });
             if(typeof history.pushState!=="function") return;
             $('.new-state').unbind().click(function(e){
