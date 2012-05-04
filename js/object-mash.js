@@ -157,6 +157,7 @@ function JSON2HTML(url) {
             if(json.issue        !== undefined) rows.push('<div class="info-item">Issue: '+this.getAnyHTML(json.issue)+'</div>');
             if(json.published    !== undefined) rows.push('<div class="info-item">Published: '+this.getDateSpan("published", json.published)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML('Loading..', json.collection, true)+'</div>');
             if(json.authors      !== undefined) rows.push(this.getObjectList('Authors:', 'author', json.authors));
             if(json.content      !== undefined) rows.push('<div class="content">'+this.getAnyHTML(json.content)+'</div>');
             if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
