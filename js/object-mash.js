@@ -33,22 +33,24 @@ function JSON2HTML(url) {
             if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
             if(this.isA('article', json))       return this.getArticleHTML(url,json,closed);
+            if(this.isA('article', json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('document',json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('media',   json, true)) return this.getMediaListHTML(url,json,closed);
             return this.getObjectHTML(url,json,closed);
         },
-        getAnyHTML: function(a){
+        getAnyHTML: function(a,closed){
             if(!a) return "";
+            if(closed===undefined) closed=true;
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%more"],a,true);
+            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%more"],a,closed);
             return a!=null? ''+a: '-';
         },
-        getObjectHTML: function(url,json,closed){
+        getObjectHTML: function(url,json,closed,title){
             var that = this;
             var rows = [];
             $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
-            return this.getObjectHeadHTML(this.getTitle(json),url,false,closed)+
+            return this.getObjectHeadHTML(this.getTitle(json,title),url,false,closed)+
                    '<table class="json"'+(closed? ' style="display: none"':'')+'>\n'+rows.join('\n')+'\n</table>';
         },
         getListHTML: function(l){
@@ -136,37 +138,32 @@ function JSON2HTML(url) {
             var rows=[];
             rows.push(this.getObjectHeadHTML('Article: '+this.getTitle(json), url, false, closed));
             rows.push('<div class="document"'+(closed? ' style="display: none"':'')+' >');
-            if(json.title     !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
-            if(json.publisher !== undefined) rows.push('<div class="info-item">Publisher: '+this.getAnyHTML(json.publisher)+'</div>');
-            if(json.journaltitle !== undefined) rows.push('<div class="info-item">Journal: '+this.getAnyHTML(json.journaltitle)+'</div>');
-            if(json.volume    !== undefined) rows.push('<div class="info-item">Volume: '+this.getAnyHTML(json.volume)+'</div>');
-            if(json.issue     !== undefined) rows.push('<div class="info-item">Issue: '+this.getAnyHTML(json.issue)+'</div>');
-            if(json.published !== undefined) rows.push('<div class="info-item">Published: '+this.getDateSpan("published", json.published)+'</div>');
-            if(json.webView   !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
-            if(json.authors   !== undefined) rows.push(this.getObjectList('Authors:', 'author', json.authors));
-            if(json["%more"]  !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
+            if(json.title        !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
+            if(json.publisher    !== undefined) rows.push('<div class="info-item">Publisher: '+this.getAnyHTML(json.publisher)+'</div>');
+            if(json.journalTitle !== undefined) rows.push('<div class="info-item">Journal: '+this.getAnyHTML(json.journalTitle)+'</div>');
+            if(json.volume       !== undefined) rows.push('<div class="info-item">Volume: '+this.getAnyHTML(json.volume)+'</div>');
+            if(json.issue        !== undefined) rows.push('<div class="info-item">Issue: '+this.getAnyHTML(json.issue)+'</div>');
+            if(json.published    !== undefined) rows.push('<div class="info-item">Published: '+this.getDateSpan("published", json.published)+'</div>');
+            if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            if(json.authors      !== undefined) rows.push(this.getObjectList('Authors:', 'author', json.authors));
+            if(json.content      !== undefined) rows.push('<div class="content">'+this.getAnyHTML(json.content)+'</div>');
+            if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
         getDocumentListHTML: function(url,json,closed){
-            var list = json.list;
-            if(!list) return "";
-            if(list.constructor!==Array) return this.getAnyHTML(list);
             var rows=[];
-            rows.push('<div class="document-list">');
-            var that = this;
-            $.each(list, function(key,item){ rows.push(that.getDocumentHTML(item)); });
+            rows.push(this.getObjectHeadHTML(this.getTitle(json,'Documents'), url, false, closed, json.icon));
+            rows.push('<div class="document-list"'+(closed? ' style="display: none"':'')+' >');
+            if(this.isA('site', json, true)){
+            if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
+            if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            }
+            if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
+            if(json.list         !== undefined) rows.push(this.getObjectList(null, 'document', json.list));
             rows.push('</div>');
             return rows.join('\n')+'\n';
-        },
-        getDocumentHTML: function(item){
-            if(item.constructor==String){
-                if(!isLink(item)) return "";
-                return ' <div class="document">\n'+
-                       '  <a href="'+item+'">'+item+'</a>\n'+
-                       ' </div>\n';
-            }
         },
         // ------------------------------------------------
         getMediaListHTML: function(url,json,closed){
@@ -205,7 +202,7 @@ function JSON2HTML(url) {
         // ---------------------------------------------------
         getObjectList: function(header,itemclass,list){
             var rows=[];
-            rows.push('<h3>'+header+'</h3>');
+            if(header) rows.push('<h3>'+header+'</h3>');
             rows.push('<ul>');
             var that = this;
             if(list.constructor===String) list = [ list ];
@@ -218,21 +215,22 @@ function JSON2HTML(url) {
             rows.push('</ul>');
             return rows.join('\n')+'\n';
         },
-        getTitle: function(json){
+        getTitle: function(json,elsedefault){
             if(!json) return "";
             if(json.fullName !== undefined) return this.getAnyHTML(json.fullName);
             if(json.title    !== undefined) return this.getAnyHTML(json.title);
-            return "";
+            return elsedefault? elsedefault: deCameliseList(json.is);
         },
         getDateSpan: function(clss, date){
             return '<span class="'+clss+'" title="'+makeISODate(date)+'">'+makeNiceDate(date)+'</span>';
         },
-        getObjectHeadHTML: function(title, url, place, closed){
+        getObjectHeadHTML: function(title, url, place, closed, icon){
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
                                                   ' <a href="'+url+'#" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
+                                            (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
                                                    '<span class="object-title">'+title+'&nbsp;</span>'+
                    '</div>';
         },
@@ -281,12 +279,11 @@ function ObjectMasher(){
     var currentObjectURL = null;
 
     var me = {
-
         init: function(){
             me.setNewObjectTo(window.location);
         },
         topObjectIn: function(obj, s){
-            document.title = json2html.getTitle(obj);
+            document.title = json2html.getTitle(obj).htmlUnEscape();
             $('#content').html(json2html.getHTML(currentObjectURL, obj));
             me.setUpHTMLEvents();
             fetch = {};
@@ -297,7 +294,7 @@ function ObjectMasher(){
             });
         },
         topObjectFail: function(x,s,e){
-            $('#content').html('<div>topObjectFail: <a href="'+url+'">'+url+'</a></div><div>'+s+'; '+e+'</div>');
+            $('#content').html('<div>topObjectFail: <a href="'+currentObjectURL+'">'+currentObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
         },
         objectIn: function(url,obj,s){
             if(!obj){ this.objectFail(url,null,"object empty; status="+s,null); return; }
@@ -377,6 +374,12 @@ String.prototype.htmlEscape = function(){
                .replace(/>/g,'&gt;')
                .replace(/"/g,'&quot;');
 };
+String.prototype.htmlUnEscape = function(){
+    return this.replace(/&amp;/g, '&')
+               .replace(/&lt;/g,  '<')
+               .replace(/&gt;/g,  '>')
+               .replace(/&quot;/g,'"');
+};
 
 // --------------------
 
@@ -412,6 +415,14 @@ function makeNiceDate(date){
     var day = daysLookupTable[d.getDay()];
     var mon = monthsLookupTable[d.getMonth()];
     return day + ', ' + d.getDate() + ' ' + mon + ' ' + d.getFullYear() + ' at '+d.toLocaleTimeString();
+}
+
+function deCameliseList(is){
+    if(!is) return "";
+    if(is.constructor===String) return deCamelise(is);
+    if(is.constructor!==Array) return deCamelise(""+is);
+    r=""; $.each(is, function(k,s){ r+=deCamelise(s)+" "; });
+    return r;
 }
 
 function deCamelise(s){

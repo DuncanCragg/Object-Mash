@@ -40,10 +40,6 @@ span.object-title{
     text-overflow: ellipsis;
 }
 
-tr {
-    border: 1px solid red;
-}
-
 td:first-child {
     background-color: #fafafa;
     width: 15%;
@@ -52,7 +48,8 @@ td:first-child {
 td {
     background-color: #ffffff;
     vertical-align: top;
-    padding: 7px;
+    padding-left: 7px;
+    padding-top: 4px;
 }
 
 a {
@@ -112,7 +109,7 @@ div.object-head.open{
     margin-left: 8px;
 }
 
-div.vcard, div.vevent, div.document {
+div.vcard, div.vevent, div.document, div.document-list {
     border-top: 1px solid #aaa;
     border-left: 1px solid #aaa;
     border-right: 1px solid #888;
@@ -133,12 +130,35 @@ div.document{
     background-color: #ffffee;
 }
 
+div.document-list{
+    background-color: #fffff0;
+}
+
 div.info-item {
-    margin: 2px 0px 0px 0px;
+    margin: 4px 0px 0px 0px;
 }
 
 div span.dtstart, div span.dtend {
     margin-left: 10px;
+}
+
+span.icon{
+    margin-right: 10px;
+}
+
+div.logo{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+div.content{
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+    margin: 10px 0px 10px 0px;
+    padding: 0px 12px 7px 12px;
+    background-color: #ffffff;
 }
 
 p.description, div.adr {
