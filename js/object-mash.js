@@ -45,6 +45,8 @@ function JSON2HTML(url) {
             if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
             if(this.isA('article', json))       return this.getArticleHTML(url,json,closed);
+            if(this.isA('chapter', json))       return this.getArticleHTML(url,json,closed);
+            if(this.isA('list',    json))       return this.getPlainListHTML(url,json,closed);
             if(this.isA('article', json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('document',json, true)) return this.getDocumentListHTML(url,json,closed);
             if(this.isA('media',   json, true)) return this.getMediaListHTML(url,json,closed);
@@ -72,6 +74,24 @@ function JSON2HTML(url) {
             if(rows.length >5) return '<div class="list"><p class="list">'+rows.join('</p>\n<p class="list">')+'</p></div>\n';
             return rows.join(', ');
         },
+        getObjectListHTML: function(header,itemclass,list){
+            var rows=[];
+            if(header) rows.push('<h3>'+header+'</h3>');
+            var that = this;
+            if(list.constructor===String) list = [ list ];
+            if(list.constructor!==Array) return this.getAnyHTML(list);
+            if(list.length){
+            rows.push('<ul>');
+            $.each(list, function(key,item){
+                rows.push('<li class="'+itemclass+'">');
+                if(that.isONLink(item)) rows.push(that.getObjectHeadHTML(null, item, true));
+                else                    rows.push(that.getAnyHTML(item));
+                rows.push('</li>');
+            });
+            rows.push('</ul>');
+            }
+            return rows.join('\n')+'\n';
+        },
         getStringHTML: function(s){
             if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL(this.fullURL(s).htmlEscape())+'"> [ + ] </a>';
             if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
@@ -88,13 +108,13 @@ function JSON2HTML(url) {
             if(json.phone        !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
             if(json.email        !== undefined) rows.push('<div class="info-item">Email: <span class="email">'+this.getAnyHTML(json.email)+'</span></div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
-            if(json.publications !== undefined) rows.push('<div class="info-item">Published: '+this.getAnyHTML(json.publications)+'</div>');
+            if(json.publications !== undefined) rows.push(this.getObjectListHTML('Publications', 'publication', json.publications));
             if(json.bio          !== undefined) rows.push('<div class="info-item">Bio: '+this.getAnyHTML(json.bio)+'</div>');
             if(json.photo        !== undefined) rows.push('<div class="photo">'+this.getAnyHTML(json.photo)+'</div>');
-            if(json.parents      !== undefined) rows.push(this.getObjectList('Parents', 'parent', json.parents));
-            if(json.inspirations !== undefined) rows.push(this.getObjectList('Inspired by', 'inspirations', json.inspirations));
-            if(json.following    !== undefined) rows.push(this.getObjectList('Following', 'following', json.following));
-            if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
+            if(json.parents      !== undefined) rows.push(this.getObjectListHTML('Parents', 'parent', json.parents));
+            if(json.inspirations !== undefined) rows.push(this.getObjectListHTML('Inspired by', 'inspirations', json.inspirations));
+            if(json.following    !== undefined) rows.push(this.getObjectListHTML('Following', 'following', json.following));
+            if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -135,8 +155,8 @@ function JSON2HTML(url) {
             if(json.start     !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
             if(json.end       !== undefined) rows.push('<div class="info-item">Until: '+this.getDateSpan("dtend",   json.end)  +'</div>');
             if(json.location  !== undefined) rows.push(this.getEventLocationHTML(json.location));
-            if(json.attendees !== undefined) rows.push(this.getObjectList('Attendees:', 'attendee', json.attendees));
-            if(json["%more"]  !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
+            if(json.attendees !== undefined) rows.push(this.getObjectListHTML('Attendees:', 'attendee', json.attendees));
+            if(json["%more"]  !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -144,14 +164,14 @@ function JSON2HTML(url) {
             var rows=[];
             rows.push('<h3>Location:</h3>');
             rows.push('<div class="location">');
-            rows.push(this.getObjectHeadHTML('Contact Loading..', locurl, true));
+            rows.push(this.getObjectHeadHTML(null, locurl, true));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
         getArticleHTML: function(url,json,closed){
             var rows=[];
-            rows.push(this.getObjectHeadHTML('Article: '+this.getTitle(json), url, false, closed));
+            rows.push(this.getObjectHeadHTML(this.getTitle(json), url, false, closed));
             rows.push('<div class="document"'+(closed? ' style="display: none"':'')+' >');
             if(json.title        !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.publisher    !== undefined) rows.push('<div class="info-item">Publisher: '+this.getAnyHTML(json.publisher)+'</div>');
@@ -160,30 +180,40 @@ function JSON2HTML(url) {
             if(json.issue        !== undefined) rows.push('<div class="info-item">Issue: '+this.getAnyHTML(json.issue)+'</div>');
             if(json.published    !== undefined) rows.push('<div class="info-item">Published: '+this.getDateSpan("published", json.published)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
-            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML('Loading..', json.collection, true)+'</div>');
-            if(json.authors      !== undefined) rows.push(this.getObjectList('Authors:', 'author', json.authors));
+            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
+            if(json.authors      !== undefined) rows.push(this.getObjectListHTML('Authors:', 'author', json.authors));
             if(json.content      !== undefined) rows.push('<div class="content">'+this.getAnyHTML(json.content)+'</div>');
-            if(json["%more"]     !== undefined) rows.push(this.getObjectList('More', 'more', json["%more"]));
+            if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
+        getPlainListHTML: function(url,json,closed){
+            var rows=[];
+            rows.push(this.getObjectHeadHTML(this.getTitle(json,'Documents'), url, false, closed, json.icon));
+            rows.push('<div class="plain-list"'+(closed? ' style="display: none"':'')+' >');
+            if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
+            if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
+            if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
+            if(json.list         !== undefined) rows.push(this.getObjectListHTML(null, 'document', json.list));
+            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
+            rows.push('</div>');
+            return rows.join('\n')+'\n';
+        },
         getDocumentListHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML(this.getTitle(json,'Documents'), url, false, closed, json.icon));
             rows.push('<div class="document-list"'+(closed? ' style="display: none"':'')+' >');
-            if(this.isA('site', json, true)){
             if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
-            }
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
             rows.push('<form id="query-form">');
             rows.push('<label for="query">Search these documents:</label>');
             rows.push('<input id="query" class="query" type="text" />');
             rows.push('<input class="submit" type="submit" value="&gt;" />');
             rows.push('</form>');
-            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML('Loading..', json.collection, true)+'</div>');
-            if(json.list         !== undefined) rows.push(this.getObjectList(null, 'document', json.list));
+            if(json.list         !== undefined) rows.push(this.getObjectListHTML(null, 'document', json.list));
+            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
@@ -194,7 +224,8 @@ function JSON2HTML(url) {
             if(list.constructor===String) list = [ list ];
             if(list.constructor!==Array) return this.getAnyHTML(list);
             var rows=[];
-            rows.push('<div class="media-list">');
+            rows.push(this.getObjectHeadHTML('Media', url, false, closed));
+            rows.push('<div class="media-list"'+(closed? ' style="display: none"':'')+' >');
             var that = this;
             $.each(list, function(key,item){ rows.push(that.getMediaHTML(item)); });
             rows.push('</div>');
@@ -222,21 +253,6 @@ function JSON2HTML(url) {
             return text;
         },
         // ---------------------------------------------------
-        getObjectList: function(header,itemclass,list){
-            var rows=[];
-            if(header) rows.push('<h3>'+header+'</h3>');
-            rows.push('<ul>');
-            var that = this;
-            if(list.constructor===String) list = [ list ];
-            if(list.constructor!==Array) return this.getAnyHTML(list);
-            $.each(list, function(key,item){
-                rows.push('<li class="'+itemclass+'">');
-                rows.push(that.getObjectHeadHTML('Loading..', item, true));
-                rows.push('</li>');
-            });
-            rows.push('</ul>');
-            return rows.join('\n')+'\n';
-        },
         getTitle: function(json,elsedefault){
             if(!json) return "No object";
             if(json.fullName !== undefined) return this.getAnyHTML(json.fullName);
@@ -253,7 +269,7 @@ function JSON2HTML(url) {
                                                   ' <a href="'+url+'opmini" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
-                                                   '<span class="object-title">'+title+'&nbsp;</span>'+
+                                                   '<span class="object-title">'+(title? title: '...')+'&nbsp;</span>'+
                    '</div>';
         },
         isA: function(type, json, list){
@@ -315,12 +331,7 @@ function ObjectMasher(){
             document.title = json2html.getTitle(obj).htmlUnEscape();
             $('#content').html(json2html.getHTML(currentObjectURL, obj));
             me.setUpHTMLEvents();
-            fetch = {};
-            $('a.object-place').each(function(n,a){ fetch[a.getAttribute('href')]=this; } );
-            $.each(fetch, function(url,a){
-                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
-                $(a).next().html('Loading..');
-            });
+            me.getNextLevelOfObjects();
         },
         topObjectFail: function(x,s,e){
             $('#content').html('<div>topObjectFail: <a href="'+currentObjectURL+'">'+currentObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
@@ -341,7 +352,7 @@ function ObjectMasher(){
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
                 var panel=objhead.next();
-                if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); }
+                if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); me.ensureVisibleObjectsIn(panel); }
                 else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
                 return false;
@@ -376,6 +387,21 @@ function ObjectMasher(){
             });
             $(window).bind("popstate", function() {
                 me.setNewObjectTo(window.location);
+            });
+        },
+        getNextLevelOfObjects: function(){
+            $('a.object-place').each(function(n,a){
+                var url = a.getAttribute('href');
+                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
+                $(a).next().html('Loading...');
+            });
+        },
+        ensureVisibleObjectsIn: function(panel){
+            $(panel).find('a.object-place').each(function(n,a){
+                if(!$(a).is(":visible")) return;
+                var url = a.getAttribute('href');
+                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
+                $(a).next().html('Loading...');
             });
         },
         // ------------------------------------------------

@@ -34,10 +34,11 @@ div.photo{
 }
 
 span.object-title{
-    white-space: nowrap;
+/*  white-space: nowrap;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+*/
 }
 
 td:first-child {
@@ -62,8 +63,12 @@ h2, h3 {
 }
 
 ul {
-    margin: 0px 0px 8px 0px;
+    margin: 8px 0px 8px 0px;
     padding: 0px;
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
 }
 
 li {
@@ -92,7 +97,7 @@ input.query{
     background-color: #ffffff;
     margin-top: 10px;
     margin-left: 10px;
-    width: 90%;
+    width: 70%;
     max-width: 25em;
     font-size: 1.3em;
 }
@@ -130,7 +135,7 @@ div.object-head.open{
     margin-left: 8px;
 }
 
-div.vcard, div.vevent, div.document, div.document-list {
+div.vcard, div.vevent, div.document, div.plain-list, div.document-list {
     border-top: 1px solid #aaa;
     border-left: 1px solid #aaa;
     border-right: 1px solid #888;
@@ -152,7 +157,11 @@ div.document{
 }
 
 div.document-list{
-    background-color: #fffff0;
+    background-color: #fff7f7;
+}
+
+div.plain-list{
+    background-color: #ffffff;
 }
 
 div.info-item {
@@ -203,13 +212,21 @@ p.description, div.adr {
     background-repeat: repeat;
     color: #ffffff;
     padding: 10px;
-    position:absolute;
-    top: 13px;
     width: 94%;
 }
 
 .media-img {
-    height: 94%;
+    height: 20%;
     margin-top: 10px;
 }
+
+#content > .media-list > .media > .media-img {
+    height: 94%;
+}
+
+#content > .media-list > .media > .media-text {
+    position:absolute;
+    top: 39px;
+}
+
 
