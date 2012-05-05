@@ -302,8 +302,9 @@ function ObjectMasher(){
             if(newURL && newURL!=currentObjectURL){
                 currentObjectURL = newURL;
                 json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
-                if(typeof history.pushState==="function") history.pushState(null,null,getMashURL(currentObjectURL));
-                else { network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail); return; }
+                var mashURL = getMashURL(currentObjectURL);
+                if(typeof history.pushState==="function") history.pushState(null,null,mashURL);
+                else { window.location = mashURL; return; }
             }
             document.title = json2html.getTitle(obj).htmlUnEscape();
             $('#content').html(json2html.getHTML(currentObjectURL, obj));
