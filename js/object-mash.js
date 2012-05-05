@@ -73,7 +73,7 @@ function JSON2HTML(url) {
             return rows.join(', ');
         },
         getStringHTML: function(s){
-            if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL()+this.fullURL(s).htmlEscape()+'"> [ + ] </a>';
+            if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL(this.fullURL(s).htmlEscape())+'"> [ + ] </a>';
             if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
             if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
             return this.ONMLString2HTML(s);
@@ -175,7 +175,7 @@ function JSON2HTML(url) {
             }
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
             rows.push('<form id="query-form">');
-            rows.push('<label for="query">Query these documents:</label><input id="query" class="query" type="text" />');
+            rows.push('<label for="query">Query these documents:</label><input id="query" class="query" type="text" /><input class="submit" type="submit" value="&gt;">');
             rows.push('</form>');
             if(json.list         !== undefined) rows.push(this.getObjectList(null, 'document', json.list));
             rows.push('</div>');
@@ -244,7 +244,7 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="'+url+'#" class="open-close">+/-</a>'+
+                                                  ' <a href="'+url+'?op=mini" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
                                                    '<span class="object-title">'+title+'&nbsp;</span>'+
@@ -291,14 +291,20 @@ function ObjectMasher(){
 
     var network = new Network();
     var json2html;
-    var previousObjectURL = null;
     var currentObjectURL = null;
 
     var me = {
         init: function(){
             me.setNewObjectTo(window.location);
         },
-        topObjectIn: function(obj, s){
+        topObjectIn: function(obj, s, x){
+            var newURL = x.getResponseHeader("Content-Location");
+            if(newURL && newURL!=currentObjectURL){
+                currentObjectURL = newURL;
+                json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
+                if(typeof history.pushState==="function") history.pushState(null,null,getMashURL(currentObjectURL));
+                else { network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail); return; }
+            }
             document.title = json2html.getTitle(obj).htmlUnEscape();
             $('#content').html(json2html.getHTML(currentObjectURL, obj));
             me.setUpHTMLEvents();
@@ -355,9 +361,9 @@ function ObjectMasher(){
             });
             if(typeof history.pushState!=="function") return;
             $('.new-state').unbind().click(function(e){
-                var href = $(this).attr("href");
-                me.setNewObjectTo(href);
-                history.pushState(null,null,href);
+                var mashURL = $(this).attr("href");
+                me.setNewObjectTo(mashURL);
+                history.pushState(null,null,mashURL);
                 e.preventDefault();
                 return false;
             });
@@ -366,15 +372,15 @@ function ObjectMasher(){
             });
         },
         // ------------------------------------------------
-        setNewObjectTo: function(url){
-            previousObjectURL = currentObjectURL;
-            currentObjectURL = me.completeObjectURL(url);
+        setNewObjectTo: function(mashURL){
+            var previousObjectURL = currentObjectURL;
+            currentObjectURL = me.getFullObjectURL(mashURL);
             if(previousObjectURL==currentObjectURL) return;
             json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
             network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail);
         },
-        completeObjectURL: function(url){
-            url=getURLParameter(url, 'o');
+        getFullObjectURL: function(mashURL){
+            url=getObjectURL(mashURL);
             if(!url.startethWith('http://')) url = getRootURL()+url;
             if(!url.endethWith('.json'))     url = url+'.json';
             return url;
@@ -406,11 +412,6 @@ String.prototype.htmlUnEscape = function(){
 
 // --------------------
 
-function getURLParameter(url, key){
-    var match = RegExp('[?&]'+key+'=([^&]*)').exec(url);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-}
-
 function getRootURL(){
     return window.location.protocol + '//' + window.location.host + '/';
 }
@@ -419,8 +420,13 @@ function getDirURL(){
     return window.location.protocol + '//' + window.location.host + window.location.pathname;
 }
 
-function getMashURL(){
-    return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=';
+function getMashURL(url){
+    return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=' + url;
+}
+
+function getObjectURL(mashURL){
+    var match = RegExp('[?&]o=([^&]*)').exec(mashURL);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
 var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];

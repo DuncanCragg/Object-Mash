@@ -97,6 +97,11 @@ input.query{
     font-size: 1.3em;
 }
 
+input.submit{
+    margin-left: 10px;
+    font-size: 1.3em;
+}
+
 p.list{
     margin: 10px 0px 0px 0px;
 }
