@@ -41,7 +41,7 @@ function JSON2HTML(url) {
 
     return {
         getHTML: function(url,json,closed){
-            if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+url+'</div><div>'+json+'</div></div>';
+            if(!json || json.constructor!==Object) return '<div><div>Not an object!</div><div>'+'<a href="'+url+'">'+url+'</a></div><div>'+json+'</div></div>';
             if(this.isA('contact', json))       return this.getContactHTML(url,json,closed);
             if(this.isA('event',   json))       return this.getEventHTML(url,json,closed);
             if(this.isA('article', json))       return this.getArticleHTML(url,json,closed);
@@ -98,8 +98,10 @@ function JSON2HTML(url) {
             rows.push('</div>');
             return rows.join('\n')+'\n';
         },
-        getContactAddressHTML: function(address){
+        getContactAddressHTML: function(addresses){
+            if(addresses.constructor!==Array) addresses = [ addresses ];
             var rows=[];
+            for(i in addresses){ var address = addresses[i];
             rows.push('<div class="adr">');
             if(address.constructor===String)     rows.push('<p class="address">'         +this.getStringHTML(address)+'</p>'); else{
             if(address.postbox    !== undefined) rows.push('<p class="post-office-box">' +this.getAnyHTML(address.postbox)+'</p>');
@@ -110,6 +112,7 @@ function JSON2HTML(url) {
             if(address.postalCode !== undefined) rows.push('<p class="postal-code">'     +this.getAnyHTML(address.postalCode)+'</p>');
             if(address.country    !== undefined) rows.push('<p class="country-name">'    +this.getAnyHTML(address.country)+'</p>'); }
             rows.push('</div>');
+            }
             return rows.join('\n')+'\n';
         },
         getContactPhoneHTML: function(phone){
@@ -175,8 +178,11 @@ function JSON2HTML(url) {
             }
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
             rows.push('<form id="query-form">');
-            rows.push('<label for="query">Query these documents:</label><input id="query" class="query" type="text" /><input class="submit" type="submit" value="&gt;">');
+            rows.push('<label for="query">Search these documents:</label>');
+            rows.push('<input id="query" class="query" type="text" />');
+            rows.push('<input class="submit" type="submit" value="&gt;" />');
             rows.push('</form>');
+            if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML('Loading..', json.collection, true)+'</div>');
             if(json.list         !== undefined) rows.push(this.getObjectList(null, 'document', json.list));
             rows.push('</div>');
             return rows.join('\n')+'\n';
@@ -232,7 +238,7 @@ function JSON2HTML(url) {
             return rows.join('\n')+'\n';
         },
         getTitle: function(json,elsedefault){
-            if(!json) return "";
+            if(!json) return "No object";
             if(json.fullName !== undefined) return this.getAnyHTML(json.fullName);
             if(json.title    !== undefined) return this.getAnyHTML(json.title);
             return elsedefault? elsedefault: deCameliseList(json.is);
@@ -244,7 +250,7 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="'+url+'?op=mini" class="open-close">+/-</a>'+
+                                                  ' <a href="'+url+'opmini" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
                                                    '<span class="object-title">'+title+'&nbsp;</span>'+
