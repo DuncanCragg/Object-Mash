@@ -284,7 +284,7 @@ function JSON2HTML(url) {
             return s && s.startethWith('http://');
         },
         isONLink: function(s){
-            return (this.isLink(s) && s.endethWith('.json'))||s.startethWith('uid-');
+            return s && (s.constructor===String) && ((this.isLink(s) && s.endethWith('.json')) || s.startethWith('uid-'));
         },
         isImageLink: function(s){
             return this.isLink(s) && (s.endethWith('.png' )||
