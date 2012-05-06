@@ -6,7 +6,8 @@ function Network() {
         getJSON: function(url,ok,err){
             var obj=null;
             if(typeof(localStorage)!=='undefined'){
-                obj=JSON.parse(localStorage.getItem(url));
+                var objstr = localStorage.getItem(url);
+                if(objstr) obj=JSON.parse(objstr);
             }
             if(obj){ ok(obj,"from-cache",null); }
             else{
