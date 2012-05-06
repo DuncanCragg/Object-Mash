@@ -10,6 +10,7 @@ var mimeTypes={
     '.js':   'application/javascript',
     '.json': 'application/json',
     '.css':  'text/css',
+    '.manifest': 'text/cache-manifest',
 
     '.jpeg': 'image/jpeg',
     '.jpg':  'image/jpeg',
@@ -23,6 +24,7 @@ var charType={
     '.js':   true,
     '.json': true,
     '.css':  true,
+    '.manifest': true,
 
     '.jpeg': false,
     '.jpg':  false,
