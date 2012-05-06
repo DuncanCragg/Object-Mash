@@ -4,13 +4,24 @@
 function Network() {
     return {
         getJSON: function(url,ok,err){
-            $.ajax({
-                url: url,
-                headers: {},
-                dataType: 'json',
-                success: ok,
-                error: err
-            });
+            var obj=null;
+            if(typeof(localStorage)!=='undefined'){
+                obj=JSON.parse(localStorage.getItem(url));
+            }
+            if(obj){ ok(obj,"from-cache",null); }
+            else{
+                $.ajax({
+                    url: url,
+                    headers: {},
+                    dataType: 'json',
+                    success: function(obj, s, x){
+                        try{ localStorage.setItem(url, JSON.stringify(obj));
+                        }catch(e){ if(e==QUOTA_EXCEEDED_ERR){ console.log('Local Storage quota exceeded'); } }
+                        ok(obj,s,x);
+                    },
+                    error: err
+                });
+            }
         },
         postJSON: function(url,json,ok,err){
             $.ajax({
@@ -320,7 +331,7 @@ function ObjectMasher(){
             me.setNewObjectTo(window.location);
         },
         topObjectIn: function(obj, s, x){
-            var newURL = x.getResponseHeader("Content-Location");
+            var newURL = x && x.getResponseHeader("Content-Location");
             if(newURL && newURL!=currentObjectURL){
                 currentObjectURL = newURL;
                 json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
