@@ -323,6 +323,7 @@ function JSON2HTML(url) {
 
 function ObjectMasher(){
 
+    var useHistory = false && typeof history.pushState==="function";
     var network = new Network();
     var json2html;
     var currentObjectURL = null;
@@ -337,7 +338,7 @@ function ObjectMasher(){
                 currentObjectURL = newURL;
                 json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
                 var mashURL = getMashURL(currentObjectURL);
-                if(typeof history.pushState==="function") history.pushState(null,null,mashURL);
+                if(useHistory) history.pushState(null,null,mashURL);
                 else { window.location = mashURL; return; }
             }
             document.title = json2html.getTitle(obj).htmlUnEscape();
@@ -389,7 +390,7 @@ function ObjectMasher(){
                 network.postJSON(currentObjectURL, json, me.topObjectIn, me.topObjectFail);
                 e.preventDefault();
             });
-            if(typeof history.pushState!=="function") return;
+            if(!useHistory) return;
             $('.new-state').unbind().click(function(e){
                 var mashURL = $(this).attr("href");
                 me.setNewObjectTo(mashURL);
@@ -420,12 +421,14 @@ function ObjectMasher(){
         setNewObjectTo: function(mashURL){
             var previousObjectURL = currentObjectURL;
             currentObjectURL = me.getFullObjectURL(mashURL);
+            if(!currentObjectURL) return;
             if(previousObjectURL==currentObjectURL) return;
             json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
             network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail);
         },
         getFullObjectURL: function(mashURL){
             url=getObjectURL(mashURL);
+            if(!url) return null;
             if(!url.startethWith('http://')) url = getRootURL()+url;
             if(!url.endethWith('.json'))     url = url+'.json';
             return url;

@@ -10,7 +10,7 @@ var mimeTypes={
     '.js':   'application/javascript',
     '.json': 'application/json',
     '.css':  'text/css',
-    '.manifest': 'text/cache-manifest',
+    '.appcache': 'text/cache-manifest',
 
     '.jpeg': 'image/jpeg',
     '.jpg':  'image/jpeg',
