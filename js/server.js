@@ -55,7 +55,7 @@ http.createServer(function(req, res) {
         var ext = path.extname(filename);
         var mimeType = mimeTypes[ext];
         if(!mimeType) mimeType='text/plain';
-        res.writeHead(200, { 'Content-Type': mimeType });
+        res.writeHead(200, mimeType=='text/cache-manifest'? { 'Content-Type': mimeType, 'Cache-Control': 'no-cache' }: { 'Content-Type': mimeType });
 
         var fileStream = fs.createReadStream(filename);
         if(charType[ext]) fileStream.setEncoding('utf-8');

@@ -105,7 +105,7 @@ function JSON2HTML(url) {
             return rows.join('\n')+'\n';
         },
         getStringHTML: function(s){
-            if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL(this.fullURL(s).htmlEscape())+'"> [ + ] </a>';
+            if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL(this.fullURL(s).htmlEscape())+'"> &gt;&gt; </a>';
             if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
             if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
             return this.ONMLString2HTML(s);
@@ -278,6 +278,7 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
+                                                  ' <a href="'+getMashURL(this.fullURL(url).htmlEscape())+'" class="open-as-new">[ + ]</a>'+
                                                   ' <a href="'+url+'opmini" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
@@ -389,6 +390,12 @@ function ObjectMasher(){
                 var json = "{ \"is\": [ \"document\", \"query\" ], \"content\": \"<hasWords("+q.jsonEscape()+")>\" }";
                 network.postJSON(currentObjectURL, json, me.topObjectIn, me.topObjectFail);
                 e.preventDefault();
+            });
+            $('.open-as-new').unbind().click(function(e){
+                var mashURL = $(this).attr("href");
+                me.setNewObjectTo(mashURL);
+                e.preventDefault();
+                return false;
             });
             if(!useHistory) return;
             $('.new-state').unbind().click(function(e){
