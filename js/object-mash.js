@@ -1,11 +1,14 @@
 
 // }-------------- Networking ------------------------------{
 
-function Network() {
+function Network(){
+
+    var useLocalStorage = typeof(localStorage)!=='undefined';
+
     return {
         getJSON: function(url,ok,err){
             var obj=null;
-            if(typeof(localStorage)!=='undefined'){
+            if(useLocalStorage){
                 var objstr = localStorage.getItem(url);
                 if(objstr) obj=JSON.parse(objstr);
             }
@@ -16,6 +19,7 @@ function Network() {
                     headers: {},
                     dataType: 'json',
                     success: function(obj, s, x){
+                        if(useLocalStorage)
                         try{ localStorage.setItem(url, JSON.stringify(obj));
                         }catch(e){ if(e==QUOTA_EXCEEDED_ERR){ console.log('Local Storage quota exceeded'); } }
                         ok(obj,s,x);
