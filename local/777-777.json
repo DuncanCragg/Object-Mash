@@ -7,6 +7,7 @@
     },
     "address": {
       "locality": "Kingston-upon-Thames",
+      "region": "Surrey",
       "postalCode": "KT1",
       "country": "UK"
     },
@@ -20,17 +21,17 @@
       "http://duncan-cragg.org/blog/",
       "http://twitter.com/duncancragg"
     ],
-    "published": [
-      "http://localhost:8080/local/111-111.json",
+    "publications": [
+      "http://localhost:8081/local/111-111.json",
       "http://duncan-cragg.org/blog/atom.json",
       "http://duncan-cragg.org/blog/"
     ],
     "bio": "Creator of the [Object Network][http://the-object.net] and Object-Mash",
     "attending": [
-       "http://localhost:8080/local/123-456.json"
+       "http://localhost:8081/local/123-456.json"
     ],
     "employer": [
-       "http://localhost:8080/local/456-789.json"
+       "http://localhost:8081/local/456-789.json"
     ],
     "inspirations": [
         "http://localhost:8888/dbpedia/Tim_Berners-Lee.json",

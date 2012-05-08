@@ -1,7 +1,7 @@
 {   "is": "contact",
     "fullName": "Mr Brian Rock",
     "role": "Business Analyst",
-    "photo": "http://localhost:8080/local/brian.jpg",
+    "photo": "http://localhost:8081/local/brian.jpg",
     "name": {
       "given":  "Brian",
       "middle": [ "Andy", "Charles" ],
@@ -27,10 +27,10 @@
     ],
     "bio": "I /[love]/ rock",
     "attending": [
-       "http://localhost:8080/local/123-456.json"
+       "http://localhost:8081/local/123-456.json"
     ],
     "employer": [
-       "http://localhost:8080/local/456-789.json"
+       "http://localhost:8081/local/456-789.json"
     ]
 }
 

@@ -278,7 +278,6 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="'+getMashURL(this.fullURL(url).htmlEscape())+'" class="open-as-new">[ + ]</a>'+
                                                   ' <a href="'+url+'opmini" class="open-close">+/-</a>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
@@ -324,7 +323,7 @@ function JSON2HTML(url) {
 
 function ObjectMasher(){
 
-    var useHistory = false && typeof history.pushState==="function";
+    var useHistory = typeof history.pushState==="function";
     var network = new Network();
     var json2html;
     var currentObjectURL = null;
@@ -332,6 +331,7 @@ function ObjectMasher(){
     var me = {
         init: function(){
             me.setNewObjectTo(window.location);
+            if(!useHistory) setInterval(function(){ me.setNewObjectTo(window.location); }, 200);
         },
         topObjectIn: function(obj, s, x){
             var newURL = x && x.getResponseHeader("Content-Location");
@@ -391,12 +391,6 @@ function ObjectMasher(){
                 network.postJSON(currentObjectURL, json, me.topObjectIn, me.topObjectFail);
                 e.preventDefault();
             });
-            $('.open-as-new').unbind().click(function(e){
-                var mashURL = $(this).attr("href");
-                me.setNewObjectTo(mashURL);
-                e.preventDefault();
-                return false;
-            });
             if(!useHistory) return;
             $('.new-state').unbind().click(function(e){
                 var mashURL = $(this).attr("href");
@@ -428,8 +422,7 @@ function ObjectMasher(){
         setNewObjectTo: function(mashURL){
             var previousObjectURL = currentObjectURL;
             currentObjectURL = me.getFullObjectURL(mashURL);
-            if(!currentObjectURL) return;
-            if(previousObjectURL==currentObjectURL) return;
+            if(!currentObjectURL || currentObjectURL==previousObjectURL) return;
             json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
             network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail);
         },
@@ -476,12 +469,11 @@ function getDirURL(){
 }
 
 function getMashURL(url){
-    return window.location.protocol + '//' + window.location.host + window.location.pathname + '?o=' + url;
+    return window.location.protocol + '//' + window.location.host + window.location.pathname + '#' + url;
 }
 
 function getObjectURL(mashURL){
-    var match = RegExp('[?&]o=([^&]*)').exec(mashURL);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    return RegExp('#(.*)').exec(mashURL)[1];
 }
 
 var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];

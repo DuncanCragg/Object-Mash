@@ -12,7 +12,7 @@
   "email": "info@bletchleypark.org.uk",
   "webView": "http://www.bletchleypark.org/",
   "employees": [
-     "http://localhost:8080/local/789-123.json"
+     "http://localhost:8081/local/789-123.json"
   ],
   "%more": "http://localhost:8888/dbpedia/Bletchley_Park.json"
 }

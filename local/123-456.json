@@ -3,7 +3,7 @@
   "content": "Top ![Mobile Meetup]! at Bletchley Park",
   "start": "Fri, 30 Sep 2011 08:00:00 GMT",
   "end":   "Sat,  1 Oct 2011 22:00:00 GMT",
-  "location": "http://localhost:8080/local/456-789.json",
-  "organiser": [ "http://localhost:8080/local/789-123.json" ],
-  "attendees": [ "http://localhost:8080/local/789-123.json", "http://localhost:8080/local/777-777.json" ]
+  "location": "http://localhost:8081/local/456-789.json",
+  "organiser": [ "http://localhost:8081/local/789-123.json" ],
+  "attendees": [ "http://localhost:8081/local/789-123.json", "http://localhost:8081/local/777-777.json" ]
 }
