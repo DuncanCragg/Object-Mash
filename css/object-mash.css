@@ -130,7 +130,7 @@ div.object-head.open{
     border-bottom: none;
 }
 
-.object-head a {
+.object-head a, .object-head span.open-close {
     float: right;
     margin-left: 8px;
 }

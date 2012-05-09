@@ -282,7 +282,7 @@ function JSON2HTML(url) {
             if(!this.isObjectURL(url) && place) return this.getAnyHTML(url);
             return '<div class="object-head'+(closed? '':' open')+'">'+
                                                     this.getAnyHTML(url)+
-                                                  ' <a href="'+url+'opmini" class="open-close">+/-</a>'+
+                                                  ' <span class="open-close">+/-</span>'+
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
                                                    '<span class="object-title">'+(title? title: '...')+'&nbsp;</span>'+
@@ -330,29 +330,32 @@ function ObjectMasher(){
     var useHistory = typeof history.pushState==="function";
     var network = new Network();
     var json2html;
-    var currentObjectURL = null;
+    var topObjectURL = null;
 
     var me = {
         init: function(){
-            me.setNewObjectTo(window.location);
-            if(!useHistory) setInterval(function(){ me.setNewObjectTo(window.location); }, 200);
+            me.getTopObject(window.location);
+            if(!useHistory) setInterval(function(){ me.getTopObject(window.location); }, 200);
         },
         topObjectIn: function(obj, s, x){
             var newURL = x && x.getResponseHeader("Content-Location");
-            if(newURL && newURL!=currentObjectURL){
-                currentObjectURL = newURL;
-                json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
-                var mashURL = getMashURL(currentObjectURL);
+$('#content').html('Loaded '+topObjectURL+' newURL='+newURL);
+            if(newURL && newURL!=topObjectURL){
+                topObjectURL = newURL;
+                json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
+                var mashURL = getMashURL(topObjectURL);
                 if(useHistory) history.pushState(null,null,mashURL);
-                else { window.location = mashURL; return; }
+                else { $('#content').html('Reloading  '+mashURL); window.location = mashURL; return; }
             }
             document.title = json2html.getTitle(obj).htmlUnEscape();
-            $('#content').html(json2html.getHTML(currentObjectURL, obj));
+            window.scrollTo(0,0);
+$('#content').html('loaded title '+document.title);
+            $('#content').html(json2html.getHTML(topObjectURL, obj));
             me.setUpHTMLEvents();
-            me.getNextLevelOfObjects();
+            setTimeout(function(){ me.getNextLevelOfObjects(); }, 50);
         },
         topObjectFail: function(x,s,e){
-            $('#content').html('<div>topObjectFail: <a href="'+currentObjectURL+'">'+currentObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
+            $('#content').html('<div>topObjectFail: <a href="'+topObjectURL+'">'+topObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
         },
         objectIn: function(url,obj,s){
             if(!obj){ this.objectFail(url,null,"object empty; status="+s,null); return; }
@@ -392,19 +395,19 @@ function ObjectMasher(){
             $('#query-form').unbind().submit(function(e){
                 var q=$('#query').val();
                 var json = "{ \"is\": [ \"document\", \"query\" ], \"content\": \"<hasWords("+q.jsonEscape()+")>\" }";
-                network.postJSON(currentObjectURL, json, me.topObjectIn, me.topObjectFail);
+                network.postJSON(topObjectURL, json, me.topObjectIn, me.topObjectFail);
                 e.preventDefault();
             });
             if(!useHistory) return;
             $('.new-state').unbind().click(function(e){
                 var mashURL = $(this).attr("href");
-                me.setNewObjectTo(mashURL);
+                me.getTopObject(mashURL);
                 history.pushState(null,null,mashURL);
                 e.preventDefault();
                 return false;
             });
             $(window).bind("popstate", function() {
-                me.setNewObjectTo(window.location);
+                me.getTopObject(window.location);
             });
         },
         getNextLevelOfObjects: function(){
@@ -423,12 +426,13 @@ function ObjectMasher(){
             });
         },
         // ------------------------------------------------
-        setNewObjectTo: function(mashURL){
-            var previousObjectURL = currentObjectURL;
-            currentObjectURL = me.getFullObjectURL(mashURL);
-            if(!currentObjectURL || currentObjectURL==previousObjectURL) return;
-            json2html = new JSON2HTML(currentObjectURL.substring(0,currentObjectURL.lastIndexOf('/')+1));
-            network.getJSON(currentObjectURL, me.topObjectIn, me.topObjectFail);
+        getTopObject: function(mashURL){
+            var previousObjectURL = topObjectURL;
+            topObjectURL = me.getFullObjectURL(mashURL);
+            if(!topObjectURL || topObjectURL==previousObjectURL) return;
+$('#content').html('Viewing '+topObjectURL);
+            json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
+            network.getJSON(topObjectURL, me.topObjectIn, me.topObjectFail);
         },
         getFullObjectURL: function(mashURL){
             url=getObjectURL(mashURL);
