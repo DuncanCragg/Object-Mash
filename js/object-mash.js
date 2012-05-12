@@ -81,7 +81,7 @@ function JSON2HTML(url) {
             var rows = [];
             $.each(json, function(key,val){ rows.push('<tr><td>'+deCamelise(key)+'</td><td>'+that.getAnyHTML(val)+ '</td></tr>'); });
             return this.getObjectHeadHTML(this.getTitle(json,title),url,false,closed)+
-                   '<table class="json"'+(closed? ' style="display: none"':'')+'>\n'+rows.join('\n')+'\n</table>';
+                   '<table class="json">\n'+rows.join('\n')+'\n</table></div>';
         },
         getListHTML: function(l){
             var that = this;
@@ -111,14 +111,14 @@ function JSON2HTML(url) {
         getStringHTML: function(s){
             if(this.isONLink(s))    return '<a class="new-state" href="'+getMashURL(this.fullURL(s).htmlEscape())+'"> &gt;&gt; </a>';
             if(this.isImageLink(s)) return '<img src="'+s.htmlEscape()+'" />';
-            if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> '+s.htmlEscape()+' </a>';
+            if(this.isLink(s))      return '<a href="'+s.htmlEscape()+'"> &gt;&gt; </a>';
             return this.ONMLString2HTML(s);
         },
         // ------------------------------------------------
         getContactHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML('Contact: '+this.getTitle(json), url, false, closed));
-            rows.push('<div class="vcard"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="vcard">');
             if(json.fullName     !== undefined) rows.push('<h2 class="fn">'+this.getAnyHTML(json.fullName)+'</h2>');
             if(json.address      !== undefined) rows.push(this.getContactAddressHTML(json.address));
             if(json.phone        !== undefined) rows.push(this.getContactPhoneHTML(json.phone));
@@ -131,7 +131,7 @@ function JSON2HTML(url) {
             if(json.inspirations !== undefined) rows.push(this.getObjectListHTML('Inspired by', 'inspirations', json.inspirations));
             if(json.following    !== undefined) rows.push(this.getObjectListHTML('Following', 'following', json.following));
             if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         getContactAddressHTML: function(addresses){
@@ -165,7 +165,7 @@ function JSON2HTML(url) {
         getEventHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML('Event: '+this.getTitle(json), url, false, closed));
-            rows.push('<div class="vevent"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="vevent">');
             if(json.title     !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.content   !== undefined) rows.push('<p class="description">'+this.getAnyHTML(json.content)+'</p>');
             if(json.start     !== undefined) rows.push('<div class="info-item">From: ' +this.getDateSpan("dtstart", json.start)+'</div>');
@@ -173,7 +173,7 @@ function JSON2HTML(url) {
             if(json.location  !== undefined) rows.push(this.getEventLocationHTML(json.location));
             if(json.attendees !== undefined) rows.push(this.getObjectListHTML('Attendees:', 'attendee', json.attendees));
             if(json["%more"]  !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         getEventLocationHTML: function(locurl){
@@ -188,7 +188,7 @@ function JSON2HTML(url) {
         getArticleHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML(this.getTitle(json), url, false, closed));
-            rows.push('<div class="document"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="document left">');
             if(json.title        !== undefined) rows.push('<h2 class="summary">'+this.getAnyHTML(json.title)+'</h2>');
             if(json.publisher    !== undefined) rows.push('<div class="info-item">Publisher: '+this.getAnyHTML(json.publisher)+'</div>');
             if(json.journalTitle !== undefined) rows.push('<div class="info-item">Journal: '+this.getAnyHTML(json.journalTitle)+'</div>');
@@ -198,39 +198,42 @@ function JSON2HTML(url) {
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
             if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
             if(json.authors      !== undefined) rows.push(this.getObjectListHTML('Authors:', 'author', json.authors));
+            rows.push('</div><div class="document right">');
             if(json.content      !== undefined) rows.push('<div class="content">'+this.getAnyHTML(json.content)+'</div>');
             if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
         getPlainListHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML(this.getTitle(json,'Documents'), url, false, closed, json.icon));
-            rows.push('<div class="plain-list"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="plain-list">');
             if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
             if(json.list         !== undefined) rows.push(this.getObjectListHTML(null, 'document', json.list));
             if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         getDocumentListHTML: function(url,json,closed){
             var rows=[];
             rows.push(this.getObjectHeadHTML(this.getTitle(json,'Documents'), url, false, closed, json.icon));
-            rows.push('<div class="document-list"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="document-list">');
             if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
+            if(true){
             rows.push('<form id="query-form">');
             rows.push('<label for="query">Search these documents:</label>');
             rows.push('<input id="query" class="query" type="text" />');
             rows.push('<input class="submit" type="submit" value="&gt;" />');
             rows.push('</form>');
+            }
             if(json.list         !== undefined) rows.push(this.getObjectListHTML(null, 'document', json.list));
             if(json.collection   !== undefined) rows.push('<div class="info-item">'+this.getObjectHeadHTML(null, json.collection, true)+'</div>');
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         // ------------------------------------------------
@@ -241,10 +244,10 @@ function JSON2HTML(url) {
             if(list.constructor!==Array) return this.getAnyHTML(list);
             var rows=[];
             rows.push(this.getObjectHeadHTML('Media', url, false, closed));
-            rows.push('<div class="media-list"'+(closed? ' style="display: none"':'')+' >');
+            rows.push('<div class="media-list">');
             var that = this;
             $.each(list, function(key,item){ rows.push(that.getMediaHTML(item)); });
-            rows.push('</div>');
+            rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
         getMediaHTML: function(json){
@@ -286,7 +289,7 @@ function JSON2HTML(url) {
                                              (url?' <a href="'+url+'" class="object'+(place? '-place': '')+'">{..}</a>':'')+
                                             (icon? '<span class="icon">'+this.getAnyHTML(icon)+'</span>':'')+
                                                    '<span class="object-title">'+(title? title: '...')+'&nbsp;</span>'+
-                   '</div>';
+                   '</div>'+(!place? '<div class="object-body" '+(closed? 'style="display: none"':'')+'>': '');
         },
         isA: function(type, json, list){
             if(!json.is) return false;
@@ -327,7 +330,7 @@ function JSON2HTML(url) {
 
 function ObjectMasher(){
 
-    var useHistory = typeof history.pushState==="function";
+    var useHistory = typeof(history.pushState)==="function";
     var network = new Network();
     var json2html;
     var topObjectURL = null;
@@ -345,14 +348,14 @@ $('#content').html('Loaded '+topObjectURL+' newURL='+newURL);
                 json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
                 var mashURL = getMashURL(topObjectURL);
                 if(useHistory) history.pushState(null,null,mashURL);
-                else { $('#content').html('Reloading  '+mashURL); window.location = mashURL; return; }
+                else { /* $('#content').html('Reloading  '+mashURL); window.location = mashURL; return; */ }
             }
             document.title = json2html.getTitle(obj).htmlUnEscape();
             window.scrollTo(0,0);
 $('#content').html('loaded title '+document.title);
             $('#content').html(json2html.getHTML(topObjectURL, obj));
             me.setUpHTMLEvents();
-            setTimeout(function(){ me.getNextLevelOfObjects(); }, 50);
+            setTimeout(function(){ me.ensureVisibleObjectsIn($('#content')); }, 50);
         },
         topObjectFail: function(x,s,e){
             $('#content').html('<div>topObjectFail: <a href="'+topObjectURL+'">'+topObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
@@ -370,10 +373,13 @@ $('#content').html('loaded title '+document.title);
             console.log(s+" "+url);
         },
         setUpHTMLEvents: function(){
+            $(window).resize(function(){
+                me.ensureVisibleObjectsIn($('#content'));
+            });
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
                 var panel=objhead.next();
-                if(panel.css('display')=='none'){ panel.show("fast"); objhead.addClass('open'); me.ensureVisibleObjectsIn(panel); }
+                if(panel.css('display')=='none'){ panel.show("fast", function(){ me.ensureVisibleObjectsIn(panel); }); objhead.addClass('open'); }
                 else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
                 return false;
@@ -410,13 +416,6 @@ $('#content').html('loaded title '+document.title);
                 me.getTopObject(window.location);
             });
         },
-        getNextLevelOfObjects: function(){
-            $('a.object-place').each(function(n,a){
-                var url = a.getAttribute('href');
-                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
-                $(a).next().html('Loading...');
-            });
-        },
         ensureVisibleObjectsIn: function(panel){
             $(panel).find('a.object-place').each(function(n,a){
                 if(!$(a).is(":visible")) return;
@@ -424,13 +423,17 @@ $('#content').html('loaded title '+document.title);
                 network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
                 $(a).next().html('Loading...');
             });
+            $(panel).find('.document.right').each(function(n,r){
+                if(!$(r).is(":visible")) return;
+                if($(r).parent().width() > 400) $(r).addClass('wide');
+                else                            $(r).removeClass('wide');
+            });
         },
         // ------------------------------------------------
         getTopObject: function(mashURL){
             var previousObjectURL = topObjectURL;
             topObjectURL = me.getFullObjectURL(mashURL);
             if(!topObjectURL || topObjectURL==previousObjectURL) return;
-$('#content').html('Viewing '+topObjectURL);
             json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
             network.getJSON(topObjectURL, me.topObjectIn, me.topObjectFail);
         },
