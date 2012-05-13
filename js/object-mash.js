@@ -4,16 +4,20 @@
 function Network(){
 
     var useLocalStorage = typeof(localStorage)!=='undefined';
+    var outstandingRequests = 0;
 
-    return {
+    var me = {
         getJSON: function(url,ok,err){
+            me.updateProgress(1);
             var obj=null;
             if(useLocalStorage){
                 var objstr = localStorage.getItem(url);
                 if(objstr) obj=JSON.parse(objstr);
             }
-            if(obj){ ok(obj,"from-cache",null); }
-            else{
+            if(obj){
+                me.updateProgress(-1);
+                ok(obj,"from-cache",null);
+            }else{
                 $.ajax({
                     url: url,
                     headers: {},
@@ -22,6 +26,7 @@ function Network(){
                         if(useLocalStorage)
                         try{ localStorage.setItem(url, JSON.stringify(obj));
                         }catch(e){ if(e==QUOTA_EXCEEDED_ERR){ console.log('Local Storage quota exceeded'); } }
+                        me.updateProgress(-1);
                         ok(obj,s,x);
                     },
                     error: err
@@ -39,13 +44,18 @@ function Network(){
                 success: ok,
                 error: err
             });
+        },
+        updateProgress: function(i){
+            outstandingRequests+=i;
+            $('#progress').width(5*outstandingRequests);
         }
     };
+    return me;
 };
 
 // }-------------- JSON->HTML ------------------------------{
 
-function JSON2HTML(url) {
+function JSON2HTML(url){
 
     var currentObjectBasePath = url;
 
@@ -334,6 +344,7 @@ function ObjectMasher(){
     var network = new Network();
     var json2html;
     var topObjectURL = null;
+    var windowWidth = $(window).width();
 
     var me = {
         init: function(){
@@ -342,7 +353,6 @@ function ObjectMasher(){
         },
         topObjectIn: function(obj, s, x){
             var newURL = x && x.getResponseHeader("Content-Location");
-$('#content').html('Loaded '+topObjectURL+' newURL='+newURL);
             if(newURL && newURL!=topObjectURL){
                 topObjectURL = newURL;
                 json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
@@ -352,7 +362,6 @@ $('#content').html('Loaded '+topObjectURL+' newURL='+newURL);
             }
             document.title = json2html.getTitle(obj).htmlUnEscape();
             window.scrollTo(0,0);
-$('#content').html('loaded title '+document.title);
             $('#content').html(json2html.getHTML(topObjectURL, obj));
             me.setUpHTMLEvents();
             setTimeout(function(){ me.ensureVisibleObjectsIn($('#content')); }, 50);
@@ -373,8 +382,11 @@ $('#content').html('loaded title '+document.title);
             console.log(s+" "+url);
         },
         setUpHTMLEvents: function(){
-            $(window).resize(function(){
-                me.ensureVisibleObjectsIn($('#content'));
+            $(window).resize(function(e){
+                if($(window).width() != windowWidth){
+                    windowWidth = $(window).width();
+                    me.ensureVisibleObjectsIn($('#content'));
+                }
             });
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
@@ -429,7 +441,6 @@ $('#content').html('loaded title '+document.title);
                 else                            $(r).removeClass('wide');
             });
         },
-        // ------------------------------------------------
         getTopObject: function(mashURL){
             var previousObjectURL = topObjectURL;
             topObjectURL = me.getFullObjectURL(mashURL);

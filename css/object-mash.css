@@ -268,4 +268,15 @@ p.description, div.adr {
     top: 39px;
 }
 
+#progress {
+    width: 0px;
+    background-color: #ced;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    border-top: 1px solid #aaa;
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+}
 
