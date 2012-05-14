@@ -364,7 +364,7 @@ function ObjectMasher(){
             window.scrollTo(0,0);
             $('#content').html(json2html.getHTML(topObjectURL, obj));
             me.setUpHTMLEvents();
-            setTimeout(function(){ me.ensureVisibleObjectsIn($('#content')); }, 50);
+            setTimeout(function(){ me.ensureVisibleAndReflow($('#content')); }, 50);
         },
         topObjectFail: function(x,s,e){
             $('#content').html('<div>topObjectFail: <a href="'+topObjectURL+'">'+topObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
@@ -385,13 +385,13 @@ function ObjectMasher(){
             $(window).resize(function(e){
                 if($(window).width() != windowWidth){
                     windowWidth = $(window).width();
-                    me.ensureVisibleObjectsIn($('#content'));
+                    me.reflowIfWidthChanged($('#content'));
                 }
             });
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
                 var panel=objhead.next();
-                if(panel.css('display')=='none'){ panel.show("fast", function(){ me.ensureVisibleObjectsIn(panel); }); objhead.addClass('open'); }
+                if(panel.css('display')=='none'){ panel.show("fast", function(){ me.ensureVisibleAndReflow(panel); }); objhead.addClass('open'); }
                 else                            { panel.hide("fast"); objhead.removeClass('open'); }
                 e.preventDefault();
                 return false;
@@ -428,6 +428,17 @@ function ObjectMasher(){
                 me.getTopObject(window.location);
             });
         },
+        getTopObject: function(mashURL){
+            var previousObjectURL = topObjectURL;
+            topObjectURL = me.getFullObjectURL(mashURL);
+            if(!topObjectURL || topObjectURL==previousObjectURL) return;
+            json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
+            network.getJSON(topObjectURL, me.topObjectIn, me.topObjectFail);
+        },
+        ensureVisibleAndReflow: function(panel){
+            me.ensureVisibleObjectsIn(panel);
+            me.reflowIfWidthChanged(panel);
+        },
         ensureVisibleObjectsIn: function(panel){
             $(panel).find('a.object-place').each(function(n,a){
                 if(!$(a).is(":visible")) return;
@@ -435,18 +446,13 @@ function ObjectMasher(){
                 network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
                 $(a).next().html('Loading...');
             });
+        },
+        reflowIfWidthChanged: function(panel){
             $(panel).find('.document.right').each(function(n,r){
                 if(!$(r).is(":visible")) return;
                 if($(r).parent().width() > 400) $(r).addClass('wide');
                 else                            $(r).removeClass('wide');
             });
-        },
-        getTopObject: function(mashURL){
-            var previousObjectURL = topObjectURL;
-            topObjectURL = me.getFullObjectURL(mashURL);
-            if(!topObjectURL || topObjectURL==previousObjectURL) return;
-            json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
-            network.getJSON(topObjectURL, me.topObjectIn, me.topObjectFail);
         },
         getFullObjectURL: function(mashURL){
             url=getObjectURL(mashURL);
