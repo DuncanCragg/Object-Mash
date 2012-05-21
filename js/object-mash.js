@@ -7,7 +7,7 @@ function Network(){
     var outstandingRequests = 0;
 
     var me = {
-        getJSON: function(url,ok,err){
+        getJSON: function(url,creds,ok,err){
             me.updateProgress(1);
             var obj=null;
             if(useLocalStorage){
@@ -16,11 +16,12 @@ function Network(){
             }
             if(obj){
                 me.updateProgress(-1);
-                ok(obj,"from-cache",null);
+                ok(obj,'from-cache',null);
             }else{
+                var headers = creds? { 'Authorization': 'O-Net '+creds.username+'/'+creds.userpass }: {}
                 $.ajax({
                     url: url,
-                    headers: {},
+                    headers: headers,
                     dataType: 'json',
                     success: function(obj, s, x){
                         if(useLocalStorage)
@@ -33,12 +34,12 @@ function Network(){
                 });
             }
         },
-        postJSON: function(url,json,ok,err){
+        postJSON: function(url,json,creds,ok,err){
             $.ajax({
                 type: 'POST',
                 url: url,
                 headers: {},
-                data: "o="+escape(json),
+                data: 'o='+escape(json),
              // contentType: 'application/json', // crappy CORS
                 dataType: 'json',
                 success: ok,
@@ -79,11 +80,11 @@ function JSON2HTML(url){
             return this.getObjectHTML(url,json,closed);
         },
         getAnyHTML: function(a,closed){
-            if(!a) return "";
+            if(!a) return '';
             if(closed===undefined) closed=true;
             if(a.constructor===String) return this.getStringHTML(a);
             if(a.constructor===Array)  return this.getListHTML(a);
-            if(a.constructor===Object) return this.getHTML(a["%url"]||a["%more"],a,closed);
+            if(a.constructor===Object) return this.getHTML(a['%url']||a['%more'],a,closed);
             return a!=null? ''+a: '-';
         },
         getObjectHTML: function(url,json,closed,title){
@@ -140,7 +141,7 @@ function JSON2HTML(url){
             if(json.parents      !== undefined) rows.push(this.getObjectListHTML('Parents', 'parent', json.parents));
             if(json.inspirations !== undefined) rows.push(this.getObjectListHTML('Inspired by', 'inspirations', json.inspirations));
             if(json.following    !== undefined) rows.push(this.getObjectListHTML('Following', 'following', json.following));
-            if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
+            if(json['%more']     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json['%more']));
             rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
@@ -182,7 +183,7 @@ function JSON2HTML(url){
             if(json.end       !== undefined) rows.push('<div class="info-item">Until: '+this.getDateSpan("dtend",   json.end)  +'</div>');
             if(json.location  !== undefined) rows.push(this.getEventLocationHTML(json.location));
             if(json.attendees !== undefined) rows.push(this.getObjectListHTML('Attendees:', 'attendee', json.attendees));
-            if(json["%more"]  !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
+            if(json['%more']  !== undefined) rows.push(this.getObjectListHTML('More', 'more', json['%more']));
             rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
@@ -210,7 +211,7 @@ function JSON2HTML(url){
             if(json.authors      !== undefined) rows.push(this.getObjectListHTML('Authors:', 'author', json.authors));
             rows.push('</div><div class="document right">');
             if(json.content      !== undefined) rows.push('<div class="content">'+this.getAnyHTML(json.content)+'</div>');
-            if(json["%more"]     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json["%more"]));
+            if(json['%more']     !== undefined) rows.push(this.getObjectListHTML('More', 'more', json['%more']));
             rows.push('</div></div>');
             return rows.join('\n')+'\n';
         },
@@ -234,10 +235,19 @@ function JSON2HTML(url){
             if(json.logo         !== undefined) rows.push('<div class="logo">'+this.getAnyHTML(json.logo)+'</div>');
             if(json.webView      !== undefined) rows.push('<div class="info-item">Website: '+this.getAnyHTML(json.webView)+'</div>');
             if(json.contentCount !== undefined) rows.push('<div class="info-item">'+this.getObjectHTML(null,json.contentCount,false,'Documents Available')+'</div>');
-            if(true){
+            if(this.isA('searchable', json, true)){
             rows.push('<form id="query-form">');
             rows.push('<label for="query">Search these documents:</label>');
-            rows.push('<input id="query" class="query" type="text" />');
+            rows.push('<input id="query" class="text" type="text" />');
+            rows.push('<input class="submit" type="submit" value="&gt;" />');
+            rows.push('</form>');
+            }
+            if(this.isA('personalisable', json, true)){
+            rows.push('<form id="login-form">');
+            rows.push('<label for="username" class="login-label">Name</label>');
+            rows.push('<input id="username" class="text" type="text" />');
+            rows.push('<label for="userpass" class="login-label">Password</label>');
+            rows.push('<input id="userpass" class="text" type="text" />');
             rows.push('<input class="submit" type="submit" value="&gt;" />');
             rows.push('</form>');
             }
@@ -249,7 +259,7 @@ function JSON2HTML(url){
         // ------------------------------------------------
         getMediaListHTML: function(url,json,closed){
             var list = json.list;
-            if(!list) return "";
+            if(!list) return '';
             if(list.constructor===String) list = [ list ];
             if(list.constructor!==Array) return this.getAnyHTML(list);
             var rows=[];
@@ -283,7 +293,7 @@ function JSON2HTML(url){
         },
         // ---------------------------------------------------
         getTitle: function(json,elsedefault){
-            if(!json) return "No object";
+            if(!json) return 'No object';
             if(json.fullName !== undefined) return this.getAnyHTML(json.fullName);
             if(json.title    !== undefined) return this.getAnyHTML(json.title);
             return elsedefault? elsedefault: deCameliseList(json.is);
@@ -329,8 +339,8 @@ function JSON2HTML(url){
         isObjectURL: function(s){
             if(!s) return false;
             if( s.constructor!==String) return false;
-            if(!s.startethWith("http:")) return false;
-            if(!s.endethWith(".json")) return false;
+            if(!s.startethWith('http:')) return false;
+            if(!s.endethWith('.json')) return false;
             return true;
         }
     };
@@ -340,11 +350,13 @@ function JSON2HTML(url){
 
 function ObjectMasher(){
 
-    var useHistory = typeof(history.pushState)==="function";
+    var useHistory = typeof(history.pushState)==='function';
+    var useLocalStorage = typeof(localStorage)!=='undefined';
     var network = new Network();
     var json2html;
     var topObjectURL = null;
     var windowWidth = $(window).width();
+    var credsOfSite = {};
 
     var me = {
         init: function(){
@@ -352,7 +364,7 @@ function ObjectMasher(){
             if(!useHistory) setInterval(function(){ me.getTopObject(window.location); }, 200);
         },
         topObjectIn: function(obj, s, x){
-            var newURL = x && x.getResponseHeader("Content-Location");
+            var newURL = x && x.getResponseHeader('Content-Location');
             if(newURL && newURL!=topObjectURL){
                 topObjectURL = newURL;
                 json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
@@ -370,7 +382,7 @@ function ObjectMasher(){
             $('#content').html('<div>topObjectFail: <a href="'+topObjectURL+'">'+topObjectURL+'</a></div><div>'+s+'; '+e+'</div>');
         },
         objectIn: function(url,obj,s){
-            if(!obj){ this.objectFail(url,null,"object empty; status="+s,null); return; }
+            if(!obj){ this.objectFail(url,null,'object empty; status='+s,null); return; }
             var html = json2html.getHTML(url, obj, true);
             $('a.object-place').each(function(n,ae){ var a=$(ae);
                 if(a.attr('href')!=url) return;
@@ -379,7 +391,7 @@ function ObjectMasher(){
             me.setUpHTMLEvents();
         },
         objectFail: function(url,x,s,e){
-            console.log(s+" "+url);
+            console.log(s+' '+url);
         },
         setUpHTMLEvents: function(){
             $(window).resize(function(e){
@@ -391,8 +403,8 @@ function ObjectMasher(){
             $('.open-close').unbind().click(function(e){
                 var objhead = $(this).parent();
                 var panel=objhead.next();
-                if(panel.css('display')=='none'){ panel.show("fast", function(){ me.ensureVisibleAndReflow(panel); }); objhead.addClass('open'); }
-                else                            { panel.hide("fast"); objhead.removeClass('open'); }
+                if(panel.css('display')=='none'){ panel.show('fast', function(){ me.ensureVisibleAndReflow(panel); }); objhead.addClass('open'); }
+                else                            { panel.hide('fast'); objhead.removeClass('open'); }
                 e.preventDefault();
                 return false;
             });
@@ -412,19 +424,24 @@ function ObjectMasher(){
             $('#query').focus();
             $('#query-form').unbind().submit(function(e){
                 var q=$('#query').val();
-                var json = "{ \"is\": [ \"document\", \"query\" ], \"content\": \"<hasWords("+q.jsonEscape()+")>\" }";
-                network.postJSON(topObjectURL, json, me.topObjectIn, me.topObjectFail);
+                var json = '{ "is": [ "document", "query" ], "content": "<hasWords('+q.jsonEscape()+')>" }';
+                network.postJSON(topObjectURL, json, me.getCreds(topObjectURL), me.topObjectIn, me.topObjectFail);
+                e.preventDefault();
+            });
+            $('#login-form').unbind().submit(function(e){
+                var creds = { "username": $('#username').val(), "userpass": $('#userpass').val() };
+                me.setCreds(topObjectURL, creds);
                 e.preventDefault();
             });
             if(!useHistory) return;
             $('.new-state').unbind().click(function(e){
-                var mashURL = $(this).attr("href");
+                var mashURL = $(this).attr('href');
                 me.getTopObject(mashURL);
                 history.pushState(null,null,mashURL);
                 e.preventDefault();
                 return false;
             });
-            $(window).bind("popstate", function() {
+            $(window).bind('popstate', function() {
                 me.getTopObject(window.location);
             });
         },
@@ -433,7 +450,7 @@ function ObjectMasher(){
             topObjectURL = me.getFullObjectURL(mashURL);
             if(!topObjectURL || topObjectURL==previousObjectURL) return;
             json2html = new JSON2HTML(topObjectURL.substring(0,topObjectURL.lastIndexOf('/')+1));
-            network.getJSON(topObjectURL, me.topObjectIn, me.topObjectFail);
+            network.getJSON(topObjectURL, me.getCreds(topObjectURL), me.topObjectIn, me.topObjectFail);
         },
         ensureVisibleAndReflow: function(panel){
             me.ensureVisibleObjectsIn(panel);
@@ -441,15 +458,15 @@ function ObjectMasher(){
         },
         ensureVisibleObjectsIn: function(panel){
             $(panel).find('a.object-place').each(function(n,a){
-                if(!$(a).is(":visible")) return;
+                if(!$(a).is(':visible')) return;
                 var url = a.getAttribute('href');
-                network.getJSON(url, function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
+                network.getJSON(url, me.getCreds(url), function(obj,s){ me.objectIn(url,obj,s); }, function(x,s,e){ me.objectFail(url,x,s,e);});
                 $(a).next().html('Loading...');
             });
         },
         reflowIfWidthChanged: function(panel){
             $(panel).find('.document.right').each(function(n,r){
-                if(!$(r).is(":visible")) return;
+                if(!$(r).is(':visible')) return;
                 if($(r).parent().width() > 400) $(r).addClass('wide');
                 else                            $(r).removeClass('wide');
             });
@@ -460,6 +477,16 @@ function ObjectMasher(){
             if(!url.startethWith('http://')) url = getRootURL()+url;
             if(!url.endethWith('.json'))     url = url+'.json';
             return url;
+        },
+        setCreds: function(siteURL, creds){
+            var domain = getDomain(siteURL);
+            if(useLocalStorage) localStorage.setItem('credsOfSite:'+domain, JSON.stringify(creds));
+            else                credsOfSite[domain] = creds;
+        },
+        getCreds: function(requestURL){
+            var domain = getDomain(requestURL);
+            if(useLocalStorage) return JSON.parse(localStorage.getItem('credsOfSite:'+domain));
+            else                return credsOfSite[domain];
         }
     };
     return me;
@@ -504,6 +531,10 @@ function getObjectURL(mashURL){
     return RegExp('#(.*)').exec(mashURL)[1];
 }
 
+function getDomain(url){
+    return RegExp('http://([^/]*)/').exec(url)[1];
+}
+
 var daysLookupTable   = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
 var monthsLookupTable = [ 'January','February','March','April','May', 'June','July','August','September','October','November','December'];
 
@@ -522,10 +553,10 @@ function makeNiceDate(date){
 }
 
 function deCameliseList(is){
-    if(!is) return "";
+    if(!is) return '';
     if(is.constructor===String) return deCamelise(is);
-    if(is.constructor!==Array) return deCamelise(""+is);
-    r=""; $.each(is, function(k,s){ r+=deCamelise(s)+" "; });
+    if(is.constructor!==Array) return deCamelise(''+is);
+    r=''; $.each(is, function(k,s){ r+=deCamelise(s)+' '; });
     return r;
 }
 

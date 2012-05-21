@@ -90,7 +90,7 @@ img {
     max-width: 100%;
 }
 
-input.query{
+input.text{
     border-top: 1px solid #aaa;
     border-left: 1px solid #aaa;
     border-right: 1px solid #888;
@@ -110,6 +110,11 @@ input.submit{
     margin-left: 10px;
     font-size: 1.3em;
 }
+
+label.login-label{
+    display: table-cell;
+}
+
 
 p.list{
     margin: 10px 0px 0px 0px;
