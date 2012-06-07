@@ -18,7 +18,7 @@ function Network(){
                 me.updateProgress(-1);
                 ok(obj,'from-cache',null);
             }else{
-                var headers = creds? { 'Authorization': 'O-Net '+creds.username+'/'+creds.userpass }: {}
+                var headers = creds? { 'Authorization': me.buildAuth(creds,'GET',url) }: {}
                 $.ajax({
                     url: url,
                     headers: headers,
@@ -35,10 +35,11 @@ function Network(){
             }
         },
         postJSON: function(url,json,creds,ok,err){
+            var headers = creds? { 'Authorization': me.buildAuth(creds,'POST',url,json) }: {}
             $.ajax({
                 type: 'POST',
                 url: url,
-                headers: {},
+                headers: headers,
                 data: 'o='+escape(json),
              // contentType: 'application/json', // crappy CORS
                 dataType: 'json',
@@ -49,6 +50,15 @@ function Network(){
         updateProgress: function(i){
             outstandingRequests+=i;
             $('#progress').width(5*outstandingRequests);
+        },
+        buildAuth: function(creds, method, url, json){
+            var expires = 1337800000000;
+            var agentid = 56781234;
+            return 'O-Net username='+creds.username+', agentid='+agentid+', scope='+method+'/'+url+', expires='+expires+', hash='+
+                        me.buildHash(creds.userpass,             agentid,           method+'/'+url,             expires, json);
+        },
+        buildHash: function(userpass, agentid, methodurl, expires, json){
+            return '[ '+userpass+' '+agentid+' '+methodurl+' '+expires+(json? ' '+json: '')+' ]';
         }
     };
     return me;
