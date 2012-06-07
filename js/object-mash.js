@@ -52,7 +52,7 @@ function Network(){
             $('#progress').width(5*outstandingRequests);
         },
         buildAuth: function(creds, method, url, json){
-            var expires = 1337800000000;
+            var expires = 1340000000000;
             var agentid = 56781234;
             return 'O-Net username='+creds.username+', agentid='+agentid+', scope='+method+'/'+url+', expires='+expires+', hash='+
                         me.buildHash(creds.userpass,             agentid,           method+'/'+url,             expires, json);
