@@ -4,6 +4,7 @@
 function Network(){
 
     var useLocalStorage = typeof(localStorage)!=='undefined';
+    var localCache = {};
     var outstandingRequests = 0;
 
     var me = {
@@ -14,6 +15,7 @@ function Network(){
                 var objstr = localStorage.getItem(url);
                 if(objstr) obj=JSON.parse(objstr);
             }
+            else obj=localCache[url];
             if(obj){
                 me.updateProgress(-1);
                 ok(obj,'from-cache',null);
@@ -24,9 +26,9 @@ function Network(){
                     headers: headers,
                     dataType: 'json',
                     success: function(obj, s, x){
-                        if(useLocalStorage)
-                        try{ localStorage.setItem(url, JSON.stringify(obj));
-                        }catch(e){ if(e==QUOTA_EXCEEDED_ERR){ console.log('Local Storage quota exceeded'); } }
+                        if(useLocalStorage){ try{ localStorage.setItem(url, JSON.stringify(obj));
+                                            }catch(e){ if(e==QUOTA_EXCEEDED_ERR){ console.log('Local Storage quota exceeded'); } }
+                        } else localCache[url]=obj;
                         me.updateProgress(-1);
                         ok(obj,s,x);
                     },
@@ -367,6 +369,7 @@ function ObjectMasher(){
     var topObjectURL = null;
     var windowWidth = $(window).width();
     var credsOfSite = {};
+    var moreOf = {};
 
     var me = {
         init: function(){
@@ -382,6 +385,13 @@ function ObjectMasher(){
                 if(useHistory) history.pushState(null,null,mashURL);
                 else { /* $('#content').html('Reloading  '+mashURL); window.location = mashURL; return; */ }
             }
+            if(s!='mored'){
+                var objMore=obj["%more"];
+                if(objMore){
+                    if(objMore.constructor===String) moreOf[objMore]=obj;
+                    else for(i in objMore) moreOf[objMore[i]]=obj;
+                }
+            }
             document.title = json2html.getTitle(obj).htmlUnEscape();
             window.scrollTo(0,0);
             $('#content').html(json2html.getHTML(topObjectURL, obj));
@@ -393,6 +403,13 @@ function ObjectMasher(){
         },
         objectIn: function(url,obj,s){
             if(!obj){ this.objectFail(url,null,'object empty; status='+s,null); return; }
+            var moreofobj=moreOf[url];
+            if(moreofobj){
+                this.mergeHashes(moreofobj,obj);
+                this.topObjectIn(moreofobj,'mored',null);
+                moreOf[url]=undefined;
+                return;
+            }
             var html = json2html.getHTML(url, obj, true);
             $('a.object-place').each(function(n,ae){ var a=$(ae);
                 if(a.attr('href')!=url) return;
@@ -497,6 +514,64 @@ function ObjectMasher(){
             var domain = getDomain(requestURL);
             if(useLocalStorage) return JSON.parse(localStorage.getItem('credsOfSite:'+domain));
             else                return credsOfSite[domain];
+        },
+        mergeHashes: function(a, b){
+            for(x in b){
+
+                if(!b[x]) continue;
+                typebx=b[x].constructor;
+                var bx;
+
+                if(typebx===String) bx=b[x]; else
+                if(typebx===Array)  bx=b[x].clone(); else
+                if(typebx===Object) bx=b[x].clone();
+
+                if(!a[x]){ a[x]=bx; continue; }
+                typeax=a[x].constructor;
+                var ax=a[x];
+
+                if(typeax===String){
+                    if(typebx===String){
+                        if(ax!==bx){
+                            a[x]=[];
+                            a[x].push(ax);
+                            a[x].push(bx);
+                        }
+                    }
+                    else
+                    if(typebx===Array){
+                        a[x]=bx;
+                        if(a[x].indexOf(ax)== -1) a[x].unshift(ax);
+                    }
+                    else
+                    if(typebx===Object){ }
+                }
+                else
+                if(typeax===Array){
+                    if(ax.indexOf(bx)== -1) ax.push(bx);
+                }
+                else
+                if(typeax===Object){
+                    if(typebx===String){ }
+                    else
+                    if(typebx===Array){
+                        a[x]=bx;
+                        if(a[x].indexOf(ax)== -1) a[x].unshift(ax);
+                    }
+                    else
+                    if(typebx===Object){
+                        this.mergeHashes(ax,bx);
+                    }
+                }
+            }
+        },
+        mergeLists: function(a, b){
+            for(x in b){
+                typebx=b[x].constructor;
+                if(typebx===String) if(a.indexOf(b[x])== -1) a.push(b[x]); else
+                if(typebx===Array)  if(a.indexOf(b[x])== -1) a.push(b[x].clone()); else
+                if(typebx===Object) if(a.indexOf(b[x])== -1) a.push(b[x].clone());
+            }
         }
     };
     return me;
@@ -521,6 +596,16 @@ String.prototype.htmlUnEscape = function(){
                .replace(/&lt;/g,  '<')
                .replace(/&gt;/g,  '>')
                .replace(/&quot;/g,'"');
+};
+
+Object.prototype.clone = function() {
+  var o = (this instanceof Array)? []: {};
+  for(i in this){
+    if(!(this[i] && this.hasOwnProperty(i))) continue;
+    if(typeof this[i]=="object") o[i]=this[i].clone();
+    else o[i]=this[i];
+  }
+  return o;
 };
 
 // --------------------

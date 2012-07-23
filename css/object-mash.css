@@ -34,7 +34,7 @@ div.photo{
     display:inline-block;
     zoom:1;
     *display:inline;
-    max-width: 100%;
+    max-width: 200px;
 }
 
 span.object-title{
