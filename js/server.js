@@ -1,5 +1,7 @@
 #!/usr/bin/node
 
+var PORT=8083;
+
 var http = require('http'),
     url = require('url'),
     path = require('path'),
@@ -68,7 +70,7 @@ http.createServer(function(req, res) {
         console.log('200 '+filename);
     });
 
-}).listen(8083);
+}).listen(PORT);
 
 String.prototype.startethWith = function(str){ return this.slice(0, str.length)==str; };
 String.prototype.endethWith   = function(str){ return this.slice(  -str.length)==str; };
