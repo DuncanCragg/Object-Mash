@@ -16,6 +16,6 @@
     { "is": "media", "url": "http://localhost:8081/local/siteone.png",              "text": "What it looks like: site one" },
     { "is": "media", "url": "http://localhost:8081/local/sitetwo.png",              "text": "What it looks like: site two - /[much the same!]/" },
     { "is": "media", "url": "http://localhost:8081/local/logo.png",                 "text": "[Demo][http://localhost:8081/#local/123-456]" },
-    { "is": "media", "url": "http://localhost:8081/local/link.png",                 "text": "[Link][http://the-object.net]" }
+    { "is": "media", "url": "http://localhost:8081/local/link.png",                 "text": "[Link][http://object.network]" }
   ]
 }
